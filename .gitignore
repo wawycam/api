@@ -1,0 +1,8 @@
+._*
+.DS_Store
+logfile
+config/develop.json
+config/production.json
+logs/
+snap/
+node_modules/
