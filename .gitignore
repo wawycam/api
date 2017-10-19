@@ -1,8 +1,7 @@
 ._*
 .DS_Store
 logfile
-config/develop.json
-config/production.json
+npm-debug.log
 logs/
 snap/
 node_modules/
