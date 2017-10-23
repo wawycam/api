@@ -10,7 +10,7 @@ module.exports = function(server) {
     next();
   });
 
-  server.get('/settings/camera/rotation/:degree', function(req, res, next) {
+  server.post('/settings/camera/rotation/:degree', function(req, res, next) {
     Settings.set({camera: { rotation: parseInt(req.params.degree) }}, (err, doc) => {
       if (err) {
         console.log(err);
@@ -22,13 +22,19 @@ module.exports = function(server) {
     })
   });
 
-  server.get('/settings/wifi/list', function(req, res, next) {
+  server.get('/settings/wifi', function(req, res, next) {
     Settings.listWifi((wifiList) => {
       res.send(200, {status: 200, list: wifiList});
     });
   });
 
-  server.post('/settings/wifi/set', function(req, res, next) {
+  server.get('/settings/wifi/enable', function(req, res, next) {
+    Settings.listEnableWifi((wifiList) => {
+      res.send(200, {status: 200, list: wifiList});
+    });
+  });
+
+  server.post('/settings/wifi', function(req, res, next) {
     Settings.setWifi(req.body.ssid, req.body.psk, (result) => {
       if (result) {
         res.send(201);

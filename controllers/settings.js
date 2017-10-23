@@ -1,8 +1,21 @@
 const fs = require('fs');
+const _ = require('lodash');
 const Iwlist = require('wireless-tools/iwlist');
+const wpa_cli = require('wireless-tools/wpa_cli');
+const wpa_supplicant = require('wireless-tools/wpa_supplicant');
+const iwconfig = require('wireless-tools/iwconfig');
 
 const Wawy = require('./wawy');
 const Settings = require('../models/settings');
+
+const getMatches = (string, regex, index) => {
+  const matches = [];
+  while (match = regex.exec(string)) {
+    matches.push(match[index]);
+  }
+  return matches;
+};
+
 
 module.exports = {
   init: () => {
@@ -56,7 +69,29 @@ module.exports = {
     });
   },
 
-  setWifi: (ssid, psk, callback) => { 
+  listEnableWifi: (callback) => {
+    const wpaSupplicant = '/etc/wpa_supplicant/wpa_supplicant.conf';
+    fs.readFile(wpaSupplicant, 'utf8', (err, buffer) => {
+      if(buffer) {
+        const match = buffer.match(/ssid=\"(.*)\"/gi);
+        const myRegEx = /ssid=\"(.*)\"/gi;
+        const list = getMatches(buffer, myRegEx, 1);
+        const ssids = [];
+        iwconfig.status((err, status) => {
+          _.each(list, (ssid) => {
+            if (status[0].ssid === ssid) {
+              ssids.push({ ssid: ssid, isCurrent: true });
+            } else {
+              ssids.push({ ssid: ssid, isCurrent: false });
+            }
+          });
+          callback(ssids);
+        });
+      }
+    });
+  },
+
+  setWifi: (ssid, psk, callback) => {
     const wpaSupplicant = '/etc/wpa_supplicant/wpa_supplicant.conf';
     fs.readFile(wpaSupplicant, 'utf8', (err, buffer) => {
       if(buffer) {
