@@ -1,4 +1,5 @@
 const fs = require('fs');
+const exec = require('child_process').exec;
 const _ = require('lodash');
 const Iwlist = require('wireless-tools/iwlist');
 const wpa_cli = require('wireless-tools/wpa_cli');
@@ -92,6 +93,7 @@ module.exports = {
   },
 
   setWifi: (ssid, psk, callback) => {
+    // note: possible use of this command line "wpa_passphrase "potato" "chewbacca" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null"
     const wpaSupplicant = '/etc/wpa_supplicant/wpa_supplicant.conf';
     fs.readFile(wpaSupplicant, 'utf8', (err, buffer) => {
       if(buffer) {
@@ -102,12 +104,36 @@ module.exports = {
         const newNetwork = `${buffer}\nnetwork={\n  ssid="${ssid}"\n  psk="${psk}"\t\n}`;
         fs.writeFile(wpaSupplicant, newNetwork, (err) => {
           if (err) throw err;
+          const wpaCli = exec('wpa_cli -i wlan0 reconfigure');
+          wpaCli.stdout.on('data', (data) => {
+            console.log(data.trim());
+          });
           callback(true);
         });
       } else {
         callback(false);
       }
     });
+  },
+
+  getWifiStatus: (callback) => {
+    let counter = 0;
+    const timeout = 30000;
+    const maxTry = 10;
+    const interval = setInterval(() => {
+      if (counter < maxTry) {
+        const wpaCli = exec('ifconfig wlan0 | grep "inet adr" | awk -F: \'{print $2}\' | awk \'{print $1}\'');
+        wpaCli.stdout.on('data', (data) => {
+          const ip = data.trim();
+          clearInterval(interval);
+          callback({statusCode: 200, ip});
+        });
+        counter++;
+      } else {
+        clearInterval(interval);
+        callback({statusCode: 408, ip: null});
+      }
+    }, (timeout/maxTry));
   }
 }
 

@@ -34,6 +34,12 @@ module.exports = function(server) {
     });
   });
 
+  server.get('/settings/wifi/status', function(req, res, next) {
+    Settings.getWifiStatus((status) => {
+      res.send(status.statusCode, {status: status.statusCode, ip: status.ip});
+    });
+  });
+
   server.post('/settings/wifi', function(req, res, next) {
     Settings.setWifi(req.body.ssid, req.body.psk, (result) => {
       if (result) {
