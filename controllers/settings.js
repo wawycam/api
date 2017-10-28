@@ -8,6 +8,7 @@ const iwconfig = require('wireless-tools/iwconfig');
 
 const Wawy = require('./wawy');
 const Settings = require('../models/settings');
+const Setup = require('setup')();
 
 const getMatches = (string, regex, index) => {
   const matches = [];
@@ -125,15 +126,21 @@ module.exports = {
         const wpaCli = exec('ifconfig wlan0 | grep "inet adr" | awk -F: \'{print $2}\' | awk \'{print $1}\'');
         wpaCli.stdout.on('data', (data) => {
           const ip = data.trim();
-          clearInterval(interval);
           callback({statusCode: 200, ip});
+          clearInterval(interval);
         });
         counter++;
       } else {
-        clearInterval(interval);
         callback({statusCode: 408, ip: null});
+        clearInterval(interval);
       }
     }, (timeout/maxTry));
+  },
+
+  setHostname: (name, callback) => {
+    Setup.hostname.save(name);
+    Setup.hosts.save(Setup.hosts.config({'127.0.1.1': name}));
+    callback(true);
   }
 }
 

@@ -49,4 +49,14 @@ module.exports = function(server) {
       }
     });
   });
+
+  server.post('/settings/name', function(req, res, next) {
+    Settings.setHostname(req.body.name, (result) => {
+      if (result) {
+        res.send(201);
+      } else {
+        res.send(401, { status: 401, error: 'no authorization' });
+      }
+    });
+  });
 };
