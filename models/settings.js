@@ -5,6 +5,7 @@ const timestamps = require('mongoose-timestamp');
 const SettingsSchema = new mongoose.Schema(
 	{
 		serial: String,
+		name: String,
 		camera: {
 			rotation: {
 				type: Number,

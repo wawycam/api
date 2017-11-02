@@ -1,5 +1,6 @@
 const errors = require('restify-errors');
 const Settings = require('../controllers/settings');
+const Wawy = require('../controllers/wawy');
 
 module.exports = function(server) {
   
@@ -31,6 +32,12 @@ module.exports = function(server) {
   server.get('/settings/wifi/enable', function(req, res, next) {
     Settings.listEnableWifi((wifiList) => {
       res.send(200, {status: 200, list: wifiList});
+    });
+  });
+
+  server.get('/settings/wifi/connected', function(req, res, next) {
+    Settings.getConnectedWifi((ssid) => {
+      res.send(200, {status: 200, ssid: ssid});
     });
   });
 

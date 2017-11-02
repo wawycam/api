@@ -27,6 +27,7 @@ module.exports = {
       if (serial) {
         const WaWySettings = new Settings({
           serial: serial,
+          name: 'wawycam',
           camera: {
             rotation: 90
           }
@@ -50,7 +51,9 @@ module.exports = {
     Wawy.serial((serial) => {
       Settings.findOne({serial: serial}, (err, settings) => {
         if (err) return console.error(err);
-        return callback(settings);
+        Wawy.info((info) => {
+          return callback(Object.assign(settings._doc, info))
+        })
       })
     })
   },
@@ -65,9 +68,27 @@ module.exports = {
     });
   },
 
+  getConnectedWifi: (callback) => {
+    const currentSsid = exec('iwgetid -r');
+    currentSsid.stdout.on('data', (ssid) => {
+      callback(ssid.trim());
+    })
+  },
+
   listWifi: (callback) => {
+    const list = {available: [], current: ''};
     Iwlist.scan('wlan0', function(err, networks) {
-      return callback(networks);
+      list.available = networks;
+      const currentSsid = exec('iwgetid -r');
+      currentSsid.stdout.on('data', (ssid) => {
+        list.current = ssid.trim()
+        return callback(list);
+      })
+      currentSsid.on('exit', () => {
+        if (!list.current) {
+          return callback(list);
+        }
+      })
     });
   },
 
@@ -138,9 +159,15 @@ module.exports = {
   },
 
   setHostname: (name, callback) => {
-    Setup.hostname.save(name);
-    Setup.hosts.save(Setup.hosts.config({'127.0.1.1': name}));
-    callback(true);
+    Wawy.serial((serial) => {
+      if (serial) {
+        Settings.findOneAndUpdate({serial: serial}, {$set: {name: name}}, (err, doc) => {
+          Setup.hostname.save(name);
+          Setup.hosts.save(Setup.hosts.config({'127.0.1.1': name}));
+          return callback(true);
+        });
+      }
+    });    
   }
 }
 
