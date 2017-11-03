@@ -2,9 +2,10 @@ const async = require('async');
 const Proc = require('node-proc');
 const exec = require('child_process').exec;
 const diskspace = require('diskspace');
+const QRCode = require('qrcode');
+const Settings = require('../models/settings');
 
-
-module.exports = {
+const Self = module.exports = {
   serial: (callback) => {
     let serial = undefined;
     Proc.cpuinfo((err, cpuinfo) => {
@@ -27,6 +28,19 @@ module.exports = {
         callback({disk: { free, total}, uptime: startTime})
       });
     })
+  },
+
+  generateQrCode: (callback) => {
+    Self.serial((serial) => {
+      Settings.findOne({serial: serial}, (err, settings) => {
+        if (err) return console.error(err);
+        const url = `http://${settings.name}.local`
+        QRCode.toFile('./public/qrcode.svg',  url, (err) => {
+          if (err) throw err
+          callback(201)
+        })
+      })
+    });
   },
 
   reboot: (callback) => {

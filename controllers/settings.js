@@ -37,6 +37,9 @@ module.exports = {
           if(settings.length === 0) {
             WaWySettings.save((err, settings) => {
               if (err) console.log(err);
+              Wawy.generateQrCode((res) => {
+                console.log('QrCode', res)
+              }) 
               console.log(settings);
             })
           }
@@ -164,6 +167,9 @@ module.exports = {
         Settings.findOneAndUpdate({serial: serial}, {$set: {name: name}}, (err, doc) => {
           Setup.hostname.save(name);
           Setup.hosts.save(Setup.hosts.config({'127.0.1.1': name}));
+          Wawy.generateQrCode((res) => {
+            console.log('Generating new QrCode for ', name, 'res:', res)
+          });
           return callback(true);
         });
       }
