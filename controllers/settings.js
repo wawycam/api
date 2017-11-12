@@ -28,6 +28,7 @@ module.exports = {
         const WaWySettings = new Settings({
           serial: serial,
           name: 'wawycam',
+          isBroadcasting: false,
           camera: {
             rotation: 90
           }
@@ -65,7 +66,9 @@ module.exports = {
     Wawy.serial((serial) => {
       if (serial) {
         Settings.findOneAndUpdate({serial: serial}, {$set: settings}, (err, doc) => {
-          return callback(err, doc);
+          if (callback) {
+            return callback(err, doc);
+          }
         });
       }
     });

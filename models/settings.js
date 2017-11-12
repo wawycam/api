@@ -6,6 +6,7 @@ const SettingsSchema = new mongoose.Schema(
 	{
 		serial: String,
 		name: String,
+		isBroadcasting: Boolean,
 		camera: {
 			rotation: {
 				type: Number,

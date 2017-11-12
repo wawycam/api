@@ -9,7 +9,7 @@ module.exports = {
     Settings.get((settings) => {
       console.log(`Start picam with ${settings.camera.rotation}° rotation lens`);
       picam = exec(`/home/pi/picam/picam --noaudio --fps 30 -v 2000000 --rotation ${settings.camera.rotation} -w 1280 -h 720 -o /run/shm/hls`);
-      
+      Settings.set({isBroadcasting: true});
       picam.stdout.on('data', (data) => {
         console.log(data.trim());
         if(data.trim() === 'capturing started') {
@@ -30,6 +30,7 @@ module.exports = {
     
     picam.on('close', (code) => {
       console.log('closing PICAM: ' + code);
+      Settings.set({isBroadcasting: false});
       return callback(false);
     });
   } 
