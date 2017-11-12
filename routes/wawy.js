@@ -8,6 +8,12 @@ module.exports = function(server) {
       res.send(201);
     })
   });
+
+  server.post('/wawy/halt', function(req, res, next) {
+    Wawy.halt(() => {
+      res.send(201);
+    })
+  });
   
   server.get('/wawy/serial', function(req, res, next) {
     Wawy.serial((serial) => {

@@ -48,5 +48,12 @@ const Self = module.exports = {
     setTimeout(() => {
       exec('reboot');
     }, 1000);
+  },
+
+  halt: (callback) => {
+    callback(true)
+    setTimeout(() => {
+      exec('halt');
+    }, 1000);
   }
 }
