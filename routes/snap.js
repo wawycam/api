@@ -20,4 +20,18 @@ module.exports = (server) => {
       res.json(200, {status: 200, filter: req.params.filter, photo: req.params.photo});
     });
   });
+
+  server.post('/snap/timelapse', (req, res, next) => {
+    const interval = req.body.interval;
+    Camera.startTimelapse(interval, () => {
+      res.send(201);
+    });
+  });
+
+  server.del('/snap/timelapse', (req, res, next) => {
+    Camera.stopTimelapse(() => {
+      res.send(204);
+    });
+  });
+
 };

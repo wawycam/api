@@ -1,4 +1,5 @@
 const async = require('async');
+const path = require("path");
 const Proc = require('node-proc');
 const exec = require('child_process').exec;
 const diskspace = require('diskspace');
@@ -36,7 +37,8 @@ const Self = module.exports = {
         if (err) return console.error(err);
         const url = `http://${settings.name}.local`
         QRCode.toFile('./public/qrcode.svg',  url, (err) => {
-          if (err) throw err
+          console.log('ERR:', err);
+          // if (err) throw err
           callback(201)
         })
       })

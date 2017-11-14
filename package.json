@@ -14,6 +14,7 @@
     "async": "^2.5.0",
     "diskspace": "^2.0.0",
     "filterous": "^2.0.2-beta",
+    "moment": "^2.19.2",
     "mongoose": "^4.10.8",
     "mongoose-timestamp": "^0.6.0",
     "node-dir": "^0.1.17",

@@ -22,6 +22,7 @@ const getMatches = (string, regex, index) => {
 module.exports = {
   init: () => {
     console.log('Init settings');
+    const Self = this;
     Wawy.serial((serial) => {
       console.log('Init setting for Wawy #', serial);
       if (serial) {
@@ -29,6 +30,7 @@ module.exports = {
           serial: serial,
           name: 'wawycam',
           isBroadcasting: false,
+          isSnaping: false,
           camera: {
             rotation: 90
           }
@@ -40,9 +42,12 @@ module.exports = {
               if (err) console.log(err);
               Wawy.generateQrCode((res) => {
                 console.log('QrCode', res)
-              }) 
-              console.log(settings);
+              })
             })
+          } else {
+            Settings.findOneAndUpdate({serial: serial}, {$set: {isBroadcasting: false, isSnaping: false}}, (err, doc) => {
+              console.log('Init done...');
+            });
           }
         })
       } else {
@@ -65,7 +70,7 @@ module.exports = {
   set: (settings, callback) => {
     Wawy.serial((serial) => {
       if (serial) {
-        Settings.findOneAndUpdate({serial: serial}, {$set: settings}, (err, doc) => {
+        Settings.findOneAndUpdate({serial: serial}, {$set: settings}, {new: true}, (err, doc) => {
           if (callback) {
             return callback(err, doc);
           }

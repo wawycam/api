@@ -7,6 +7,12 @@ const SettingsSchema = new mongoose.Schema(
 		serial: String,
 		name: String,
 		isBroadcasting: Boolean,
+		isSnaping: Boolean,
+		timelapses: [{
+			name: String,
+			updatedAt: Date,
+			count: Number,
+		}],
 		camera: {
 			rotation: {
 				type: Number,

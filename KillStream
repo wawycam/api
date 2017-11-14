@@ -1,4 +1,0 @@
-#!/bin/bash
-
-ps aux  |  grep -i 'ffmpeg'  |  awk '{print $2}'  |  xargs sudo kill -9 
-ps aux  |  grep -i 'picam'  |  awk '{print $2}'  |  xargs sudo kill -9
