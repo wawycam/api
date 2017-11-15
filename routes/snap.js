@@ -1,3 +1,4 @@
+const restify = require('restify');
 const Camera = require('../controllers/camera');
 
 module.exports = (server) => {
@@ -18,6 +19,13 @@ module.exports = (server) => {
   server.get('/snap/filter/:filter/:photo', (req, res, next) => {
     Camera.filters(`snap/${req.params.photo}.png`, [req.params.filter], (filteredPhoto) => {
       res.json(200, {status: 200, filter: req.params.filter, photo: req.params.photo});
+    });
+  });
+
+  server.get('/snap/last/:timelapse', (req, res, next) => {
+    const timelapse = req.params.timelapse;
+    Camera.lastTimeLapseSnap(timelapse, (photo) => {
+      res.json(200, photo);
     });
   });
 

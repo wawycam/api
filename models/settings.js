@@ -10,6 +10,7 @@ const SettingsSchema = new mongoose.Schema(
 		isSnaping: Boolean,
 		timelapses: [{
 			name: String,
+			photos: [{name: String}],
 			updatedAt: Date,
 			count: Number,
 		}],

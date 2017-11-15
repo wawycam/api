@@ -75,7 +75,6 @@ module.exports = {
   },
 
   startTimelapse: (interval, callback) => {
-    console.log('Je passe');
     Settings.get((settings) => {
       const Self = this;
       const date = moment().format('YYYY-MM-DD-HH:mm');
@@ -115,7 +114,8 @@ module.exports = {
             if (timelapse.name === timeLapseName) {
               timelapse.count += 1;
               timelapse.updatedAt = moment();
-              Settings.set({timelapses: this.document.timelapses}, (err, doc) => {
+              timelapse.photos.push({name: filename});
+              Settings.set({timelapses: Self.document.timelapses}, (err, doc) => {
               });
             }
           })
@@ -141,6 +141,16 @@ module.exports = {
       console.log('Update isSnaping to false');
     });
     callback();
+  },
+
+  lastTimeLapseSnap: (timelapse, callback) => {
+    Settings.get((settings) => {
+      settings.timelapses.map((tl) => {
+        if (tl.name === timelapse) {
+          callback(tl.photos[tl.photos.length-1].name);
+        }
+      });
+    });
   }
 
 }
