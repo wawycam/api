@@ -147,6 +147,16 @@ module.exports = {
     callback();
   },
 
+  lastTimeLapseSnap: (timelapse, callback) => {
+    Settings.get((camera) => {
+      camera.timelapses.map((tl) => {
+        if (tl.name === timelapse) {
+          callback(tl.photos[tl.photos.length-1].name);
+        }
+      });
+    });
+  },
+
   deleteTimelapse: (timelapseName, callback) => {
     Settings.get((camera) => {
       const tl = camera.timelapses.filter(function (timelapse) {
