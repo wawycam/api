@@ -22,15 +22,11 @@ const getMatches = (string, regex, index) => {
 module.exports = {
   init: () => {
     console.log('Init settings');
-    const Self = this;
     Wawy.serial((serial) => {
       console.log('Init setting for Wawy #', serial);
       if (serial) {
         const WaWySettings = new Settings({
           serial: serial,
-          name: 'wawycam',
-          isBroadcasting: false,
-          isSnaping: false,
           camera: {
             rotation: 90
           }
@@ -40,14 +36,8 @@ module.exports = {
           if(settings.length === 0) {
             WaWySettings.save((err, settings) => {
               if (err) console.log(err);
-              Wawy.generateQrCode((res) => {
-                console.log('QrCode', res)
-              })
+              console.log(settings);
             })
-          } else {
-            Settings.findOneAndUpdate({serial: serial}, {$set: {isBroadcasting: false, isSnaping: false}}, (err, doc) => {
-              console.log('Init done...');
-            });
           }
         })
       } else {
@@ -60,9 +50,7 @@ module.exports = {
     Wawy.serial((serial) => {
       Settings.findOne({serial: serial}, (err, settings) => {
         if (err) return console.error(err);
-        Wawy.info((info) => {
-          return callback(Object.assign(settings._doc, info))
-        })
+        return callback(settings);
       })
     })
   },
@@ -70,36 +58,53 @@ module.exports = {
   set: (settings, callback) => {
     Wawy.serial((serial) => {
       if (serial) {
-        Settings.findOneAndUpdate({serial: serial}, {$set: settings}, {new: true}, (err, doc) => {
-          if (callback) {
-            return callback(err, doc);
-          }
+        Settings.findOneAndUpdate({serial: serial}, {$set: settings}, (err, doc) => {
+          return callback(err, doc);
         });
       }
     });
   },
 
-  getConnectedWifi: (callback) => {
-    const currentSsid = exec('iwgetid -r');
-    currentSsid.stdout.on('data', (ssid) => {
-      callback(ssid.trim());
-    })
+  setSubdoc: (subDocCriteria, settings, callback) => {
+    Wawy.serial((serial) => {
+      if (serial) {
+        const SerialCriteria = {serial: serial};
+        const criteria  = Object.assign(SerialCriteria, subDocCriteria);
+        console.log(criteria);
+        Settings.findOneAndUpdate(criteria, {$set: settings}, (err, doc) => {
+          return callback(err, doc);
+        });
+      }
+    });
+  },
+
+  pushSubdoc: (subDocCriteria, datas, callback) => {
+    Wawy.serial((serial) => {
+      if (serial) {
+        const SerialCriteria = {serial: serial};
+        const criteria  = Object.assign(SerialCriteria, subDocCriteria);
+        Settings.update(criteria, {$push: datas}, (err, doc) => {
+          return callback(err, doc);
+        });
+      }
+    });
+  },
+
+  deleteSubdoc: (subDocCriteria, toDelete, callback) => {
+    Wawy.serial((serial) => {
+      if (serial) {
+        const SerialCriteria = {serial: serial};
+        const criteria  = Object.assign(SerialCriteria, subDocCriteria);
+        Settings.update(criteria, {$pull: toDelete}, (err, doc) => {
+          return callback(err, doc);
+        });
+      }
+    });
   },
 
   listWifi: (callback) => {
-    const list = {available: [], current: ''};
     Iwlist.scan('wlan0', function(err, networks) {
-      list.available = networks;
-      const currentSsid = exec('iwgetid -r');
-      currentSsid.stdout.on('data', (ssid) => {
-        list.current = ssid.trim()
-        return callback(list);
-      })
-      currentSsid.on('exit', () => {
-        if (!list.current) {
-          return callback(list);
-        }
-      })
+      return callback(networks);
     });
   },
 
@@ -170,18 +175,9 @@ module.exports = {
   },
 
   setHostname: (name, callback) => {
-    Wawy.serial((serial) => {
-      if (serial) {
-        Settings.findOneAndUpdate({serial: serial}, {$set: {name: name}}, (err, doc) => {
-          Setup.hostname.save(name);
-          Setup.hosts.save(Setup.hosts.config({'127.0.1.1': name}));
-          Wawy.generateQrCode((res) => {
-            console.log('Generating new QrCode for ', name, 'res:', res)
-          });
-          return callback(true);
-        });
-      }
-    });    
+    Setup.hostname.save(name);
+    exec(`'sudo -- sh -c -e "echo \'127.0.1.1        ${name}\' >> /etc/hosts"`);
+    callback(true);
   }
 }
 

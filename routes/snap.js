@@ -1,5 +1,6 @@
 const restify = require('restify');
 const Camera = require('../controllers/camera');
+const Settings = require('../controllers/settings');
 
 module.exports = (server) => {
   server.get('/snap', (req, res, next) => {
@@ -36,8 +37,22 @@ module.exports = (server) => {
     });
   });
 
+  server.post('/snap/timelapse/footage', (req, res, next) => {
+    const timelapse = req.body.timelapse;
+    Camera.makeTimelapsVideo(timelapse, () => {
+      res.send(201);
+    });
+  });
+
   server.del('/snap/timelapse', (req, res, next) => {
     Camera.stopTimelapse(() => {
+      res.send(204);
+    });
+  });
+
+  server.del('/snap/timelapse/:timelapse', (req, res, next) => {
+    const timelapse = req.params.timelapse;
+    Camera.deleteTimelapse(timelapse, () => {
       res.send(204);
     });
   });

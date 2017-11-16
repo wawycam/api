@@ -9,10 +9,11 @@ const SettingsSchema = new mongoose.Schema(
 		isBroadcasting: Boolean,
 		isSnaping: Boolean,
 		timelapses: [{
+			count: Number,
 			name: String,
 			photos: [{name: String}],
+			status: String,
 			updatedAt: Date,
-			count: Number,
 		}],
 		camera: {
 			rotation: {

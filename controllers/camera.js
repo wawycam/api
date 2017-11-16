@@ -5,7 +5,7 @@ const fs = require('fs');
 const dir = require('node-dir');
 const filterous = require('filterous');
 const pathParse = require('path-parse');
-const Wawy = require('./wawy');
+const exec = require('child_process').exec;
 const Settings = require('../controllers/settings');
 const photoPath = './snap';
 module.exports = {
@@ -78,10 +78,10 @@ module.exports = {
     Settings.get((settings) => {
       const Self = this;
       const date = moment().format('YYYY-MM-DD-HH:mm');
-      const timeLapseName =  `timelapse-${date}`;
+      this.timelapseName =  `timelapse-${date}`;
       const lastFileName = '';
-      const document = {} //-- To be re-factor
-      const output = `${photoPath}/${timeLapseName}/%04d.png`;
+      const output = `${photoPath}/${this.timelapseName}/%04d.png`;
+
       this.timelapse = new RaspiCam({
         mode: "timelapse",
         output: output,
@@ -92,42 +92,47 @@ module.exports = {
         width: 1440,
         height: 1080,
       });
-
+  
       this.timelapse.on("start", (err, timestamp) => {
         console.log("Timelapse started...");
-
-        Settings.get((wawy) => {
-          wawy.timelapses.push({name: timeLapseName, count: 0});
-          Settings.set({isSnaping: true, timelapses: wawy.timelapses}, (err, doc) => {
-            console.log('Update isSnaping to true');
-            Self.document = doc;
-          });
+        Settings.get((camera) => {
+          const timelapses = {
+            name: Self.timelapseName,
+            count: 0,
+            photos: []
+          }
+          Settings.pushSubdoc({"_id": camera._id}, {timelapses: timelapses}, (err, doc) => {});
+          Settings.set({isSnaping: true}, (err, doc) => {});
         });
-        
       });
   
       this.timelapse.on("read", (err, timestamp, filename) => {
         if (filename.indexOf('~') === -1 && Self.lastFileName != filename) {
-          console.log('Read Snap...', filename, timeLapseName);
+          console.log('Read Snap...', filename, Self.timelapseName);
           Self.lastFileName = filename;
-          Self.document.timelapses.map((timelapse) => {
-            if (timelapse.name === timeLapseName) {
-              timelapse.count += 1;
-              timelapse.updatedAt = moment();
-              timelapse.photos.push({name: filename});
-              Settings.set({timelapses: Self.document.timelapses}, (err, doc) => {
-              });
+          Settings.get((camera) => {
+            const tl = camera.timelapses.filter(function (timelapse) {
+              return timelapse.name === Self.timelapseName
+            }).pop();
+            const count = tl.count + 1
+            const updateFields = {
+              "timelapses.$.count": count,
+              "timelapses.$.updatedAt": moment,
             }
-          })
+            Settings.setSubdoc({"timelapses._id": tl._id}, updateFields, (err, doc) => {});
+            Settings.pushSubdoc({"timelapses._id": tl._id}, {"timelapses.$.photos": {name: filename}}, (err, doc) => {});
+          }); 
         }
       });
   
-      // this.timelapse.on("exit", (timestamp) => {
-      //   console.log('Exit Snap...', timeLapseName);
-      // });
+      this.timelapse.on("exit", (timestamp) => {
+        console.log('Exit Snap...', Self.timeLapseName);
+      });
   
       this.timelapse.on("stop", (err, timestamp) => {
-        console.log("Timelpase child process has been stopped at " + timestamp);
+        Settings.set({isSnaping: false}, (err, doc) => {
+          console.log('Update isSnaping to false');
+        });    
       });
   
       this.timelapse.start();  
@@ -136,19 +141,44 @@ module.exports = {
   },
 
   stopTimelapse: (callback) => {
+    console.log('stop interval');
     this.timelapse.stop();
-    Settings.set({isSnaping: false}, (err, doc) => {
-      console.log('Update isSnaping to false');
-    });
     callback();
   },
 
-  lastTimeLapseSnap: (timelapse, callback) => {
-    Settings.get((settings) => {
-      settings.timelapses.map((tl) => {
-        if (tl.name === timelapse) {
-          callback(tl.photos[tl.photos.length-1].name);
-        }
+  deleteTimelapse: (timelapseName, callback) => {
+    Settings.get((camera) => {
+      const tl = camera.timelapses.filter(function (timelapse) {
+        return timelapse.name === timelapseName
+      }).pop();
+      if (tl) {
+        Settings.deleteSubdoc({"_id": camera._id}, {"timelapses": {"_id": tl._id}}, (err, doc) => {
+          callback();
+        });
+      } else {
+        callback();
+      }
+    });
+  },
+
+  makeTimelapsVideo: (timelaspe, callback) => {
+    Settings.get((camera) => {
+      const tl = camera.timelapses.filter(function (tl) {
+        return tl.name === timelaspe;
+      }).pop();
+
+      Settings.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "processing"}, (err, doc) => {
+        if (err) throw err;
+        const timelapsFolder = `${photoPath}/${timelaspe}`;
+        const cmd = `ffmpeg -r 24 -pattern_type glob -i '${timelapsFolder}/*.png' -i ${timelapsFolder}/%04d.png -s hd1080 ${timelapsFolder}/timelapse.mp4`;
+        console.log('Timelapse video processing...');
+        const ffmpegCli = exec(cmd);
+        ffmpegCli.on('exit', (code) => {
+          Settings.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "achieve"}, (err, doc) => {
+            console.log('EXIT', code);
+          });
+        });
+        callback('done');
       });
     });
   }
