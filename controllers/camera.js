@@ -3,6 +3,7 @@ const moment = require("moment");
 const uuid = require('uuid/v4');
 const fs = require('fs');
 const dir = require('node-dir');
+const rimraf = require('rimraf');
 const filterous = require('filterous');
 const pathParse = require('path-parse');
 const exec = require('child_process').exec;
@@ -152,8 +153,11 @@ module.exports = {
         return timelapse.name === timelapseName
       }).pop();
       if (tl) {
-        Settings.deleteSubdoc({"_id": camera._id}, {"timelapses": {"_id": tl._id}}, (err, doc) => {
-          callback();
+        console.log(`${photoPath}/${tl.name}`);
+        rimraf(`${photoPath}/${tl.name}`, () => { 
+          Settings.deleteSubdoc({"_id": camera._id}, {"timelapses": {"_id": tl._id}}, (err, doc) => {
+            callback();
+          });
         });
       } else {
         callback();
