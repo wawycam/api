@@ -27,6 +27,7 @@ module.exports = {
       if (serial) {
         const WaWySettings = new Settings({
           serial: serial,
+          name: 'wawycam',
           camera: {
             rotation: 90
           }

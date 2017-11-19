@@ -12,7 +12,6 @@ const exec = require('child_process').exec;
 const tar = require('tar');
 const request  = require('request');
 const Settings = require('../controllers/settings');
-const photoPath = './snap';
 module.exports = {
   file: '',
   timelapse: '',
@@ -52,13 +51,14 @@ module.exports = {
   filters: (file, filters, callback) => {
     const path = pathParse(file);
     filters.map((filter) => {
-      fs.open(`${photoPath}/${path.name}_${filter}${path.ext}`, 'r', (err, fd) => {
+      console.log(`${path.dir}/${path.name}_${filter}${path.ext}`);
+      fs.open(`${path.dir}/${path.name}_${filter}${path.ext}`, 'r', (err, fd) => {
         if (err) {
           if (err.code === 'ENOENT') {
             fs.readFile(file, (err, buffer) => {
               let f = filterous.importImage(buffer)
               .applyInstaFilter(filter)
-              .save(`${photoPath}/${path.name}_${filter}${path.ext}`);
+              .save(`${path.dir}/${path.name}_${filter}${path.ext}`);
               return callback(true);
             });
           } else {
