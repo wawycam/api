@@ -1,3 +1,4 @@
+const config = require('../config');
 const RaspiCam = require("raspicam");
 const moment = require("moment");
 const uuid = require('uuid/v4');
@@ -6,7 +7,10 @@ const dir = require('node-dir');
 const rimraf = require('rimraf');
 const filterous = require('filterous');
 const pathParse = require('path-parse');
+const im = require('simple-imagemagick');
 const exec = require('child_process').exec;
+const tar = require('tar');
+const request  = require('request');
 const Settings = require('../controllers/settings');
 const photoPath = './snap';
 module.exports = {
@@ -108,19 +112,31 @@ module.exports = {
       });
   
       this.timelapse.on("read", (err, timestamp, filename) => {
-        if (filename.indexOf('~') === -1 && Self.lastFileName != filename) {
+        if (filename.indexOf('~') === -1 && filename.indexOf('x_') === -1 && Self.lastFileName != filename) {
           console.log('Read Snap...', filename, Self.timelapseName);
           Self.lastFileName = filename;
           Settings.get((camera) => {
             const tl = camera.timelapses.filter(function (timelapse) {
               return timelapse.name === Self.timelapseName
             }).pop();
-            const count = tl.count + 1
+            let count = tl.count + 1
             const updateFields = {
-              "timelapses.$.count": count,
-              "timelapses.$.updatedAt": moment,
+              "timelapses.$.count": count, 
+              "timelapses.$.updatedAt": moment()
             }
-            Settings.setSubdoc({"timelapses._id": tl._id}, updateFields, (err, doc) => {});
+
+            im.convert([
+              `${photoPath}/${this.timelapseName}/${filename}`,
+              '-resize',
+              '480',
+              `${photoPath}/${this.timelapseName}/480x_${filename}`,
+              ], (err, stdout) => {
+                if (err)  console.log(err);
+              });
+
+            Settings.setSubdoc({"timelapses._id": tl._id}, updateFields, (err, doc) => {
+              console.log(err)
+            });
             Settings.pushSubdoc({"timelapses._id": tl._id}, {"timelapses.$.photos": {name: filename}}, (err, doc) => {});
           }); 
         }
@@ -163,7 +179,6 @@ module.exports = {
         return timelapse.name === timelapseName
       }).pop();
       if (tl) {
-        console.log(`${photoPath}/${tl.name}`);
         rimraf(`${photoPath}/${tl.name}`, () => { 
           Settings.deleteSubdoc({"_id": camera._id}, {"timelapses": {"_id": tl._id}}, (err, doc) => {
             callback();
@@ -175,26 +190,52 @@ module.exports = {
     });
   },
 
-  makeTimelapsVideo: (timelaspe, callback) => {
+  makeTimelapse: (timelaspe, type, callback) => {
     Settings.get((camera) => {
+      const timelapsFolder = `${photoPath}/${timelaspe}`;
+      const photosToUpload = [];
       const tl = camera.timelapses.filter(function (tl) {
         return tl.name === timelaspe;
       }).pop();
 
       Settings.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "processing"}, (err, doc) => {
         if (err) throw err;
-        const timelapsFolder = `${photoPath}/${timelaspe}`;
-        const cmd = `ffmpeg -r 24 -pattern_type glob -i '${timelapsFolder}/*.png' -i ${timelapsFolder}/%04d.png -s hd1080 ${timelapsFolder}/timelapse.mp4`;
-        console.log('Timelapse video processing...');
-        const ffmpegCli = exec(cmd);
-        ffmpegCli.on('exit', (code) => {
-          Settings.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "achieve"}, (err, doc) => {
-            console.log('EXIT', code);
+        tl.photos.map((photo) => {
+          photosToUpload.push(`480x_${photo.name}`);
+        })
+        tar.c(
+          {
+            gzip: true,
+            file: `${timelapsFolder}/photos.tgz`,
+            cwd: timelapsFolder,
+          },
+          photosToUpload
+        ).then((err, done) => {
+          const formData = {
+            uid: uuid(),
+            timelapse: timelaspe,
+            photos: fs.createReadStream(`${timelapsFolder}/photos.tgz`)
+          }
+          request.post({'url': `${config.microservice_url}/video`, formData: formData}, (err, res, body) => {
+            const convertRes = JSON.parse(body);
+            if (convertRes && convertRes.status === 200) {
+              request(`${config.microservice_url}/${convertRes.video}`)
+              .on('response', function(response) {
+                if (response.statusCode) {
+                  console.log('Timelapse video file is ready!');
+                  request.delete({'url': `${config.microservice_url}/${convertRes.video}`}, (err, res, body) => {
+                    if (res.toJSON().statusCode === 204) {
+                      console.log('Microservice video deleted!');
+                    }
+                  })
+                }
+              })
+              .pipe(fs.createWriteStream(`${timelapsFolder}/timelapse.mp4`))
+            }
+            callback('done');
           });
-        });
-        callback('done');
+        })
       });
     });
   }
-
 }

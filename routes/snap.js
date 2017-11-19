@@ -39,7 +39,7 @@ module.exports = (server) => {
 
   server.post('/snap/timelapse/footage', (req, res, next) => {
     const timelapse = req.body.timelapse;
-    Camera.makeTimelapsVideo(timelapse, () => {
+    Camera.makeTimelapse(timelapse, req.body.type, () => {
       res.send(201);
     });
   });
