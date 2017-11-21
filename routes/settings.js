@@ -1,5 +1,5 @@
 const errors = require('restify-errors');
-const Settings = require('../controllers/settings');
+// const Settings = require('../controllers/settings');
 const Wawy = require('../controllers/wawy');
 
 module.exports = function(server) {

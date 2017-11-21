@@ -2,29 +2,24 @@ const mongoose = require('mongoose');
 mongoose.set('debug', true);
 const timestamps = require('mongoose-timestamp');
 
-const SettingsSchema = new mongoose.Schema(
+const WaWySchema = new mongoose.Schema(
 	{
 		serial: String,
 		name: String,
 		isBroadcasting: Boolean,
-		isSnaping: Boolean,
+		isSnapping: Boolean,
+		rotation: Number,
 		timelapses: [{
 			count: Number,
 			name: String,
 			photos: [{name: String}],
 			status: String,
 			updatedAt: Date,
-		}],
-		camera: {
-			rotation: {
-				type: Number,
-				required: false
-			}
-		}
+		}]
 	}
 );
 
-SettingsSchema.plugin(timestamps);
+WaWySchema.plugin(timestamps);
 
-const Settings = mongoose.model('Settings', SettingsSchema);
-module.exports = Settings;    
+const WaWy = mongoose.model('Camera', WaWySchema);
+module.exports = WaWy;    

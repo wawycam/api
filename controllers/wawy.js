@@ -1,61 +1,113 @@
-const async = require('async');
-const path = require("path");
-const Proc = require('node-proc');
-const exec = require('child_process').exec;
-const diskspace = require('diskspace');
+const Setup = require('setup')();
+const Exec = require('child_process').exec;
+const Service = require('../controllers/service');
 const QRCode = require('qrcode');
-const Settings = require('../models/settings');
+const WaWyModel = require('../models/wawy');
 
 const Self = module.exports = {
-  serial: (callback) => {
-    let serial = undefined;
-    Proc.cpuinfo((err, cpuinfo) => {
-      async.eachSeries(cpuinfo, (info, cb) => {
-        if(info.Serial) {
-          serial = info.Serial;
-        }
-        cb();
-      }, () => {
-        callback(serial)
-      });
-    });
+  init: () => {
+    console.log('Init WaWy');
+    Service.serial((serial) => {
+      console.log('Initialisation of Wawy #', serial);
+      if (serial) {
+        const WaWySettings = new WaWyModel({
+          serial: serial.serial,
+          name: 'wawycam',
+          rotation: 90
+        });
+        WaWyModel.find({serial: serial.serial}, (err, wawy) => {
+          if (err) return console.error(err);
+          if(wawy.length === 0) {
+            WaWySettings.save((err, wawy) => {
+              if (err) console.log(err);
+              console.log(wawy);
+            })
+          }
+        })
+      } else {
+        console.error('no serial');
+      }
+    })
   },
 
-  info: (callback) => {
-    const uptime = Proc.uptime((err, uptime, startTime) => {
-      diskspace.check('/', (err, result) => {
-        const free = (result.free / 1073741824).toFixed(2)
-        const total = (result.total / 1073741824).toFixed(2)
-        callback({disk: { free, total}, uptime: startTime})
-      });
+  setname: (name, callback) => {
+    Setup.hostname.save(name);
+    const cmd = `sudo -- sh -c -e "echo '127.0.0.1   ${name}' >> /etc/hosts";`;
+    Exec(cmd);
+    Self.set({name: name}, (err, doc) => {
+      if (!err) {
+        callback(true);
+      }
     })
   },
 
   generateQrCode: (callback) => {
-    Self.serial((serial) => {
-      Settings.findOne({serial: serial}, (err, settings) => {
+    Service.serial((serial) => {
+      WaWyModel.findOne({serial: serial.serial}, (err, wawy) => {
         if (err) return console.error(err);
-        const url = `http://${settings.name}.local`
+        const url = `http://${wawy.name}.local`
+        console.log(url);
         QRCode.toFile('./public/qrcode.svg',  url, (err) => {
-          console.log('ERR:', err);
-          // if (err) throw err
           callback(201)
         })
       })
     });
   },
 
-  reboot: (callback) => {
-    callback(true)
-    setTimeout(() => {
-      exec('reboot');
-    }, 1000);
+  /*DB OPERATION */
+
+  get: (callback) => {
+    Service.serial((serial) => {
+      WaWyModel.findOne({serial: serial.serial}, (err, camera) => {
+        if (err) return console.error(err);
+        callback(camera);
+      })
+    })
   },
 
-  halt: (callback) => {
-    callback(true)
-    setTimeout(() => {
-      exec('halt');
-    }, 1000);
-  }
+  set: (settings, callback) => {
+    Service.serial((serial) => {
+      if (serial) {
+        WaWyModel.findOneAndUpdate({serial: serial.serial}, {$set: settings}, (err, doc) => {
+          callback(err, doc);
+        });
+      }
+    });
+  },
+
+  setSubdoc: (subDocCriteria, settings, callback) => {
+    Service.serial((serial) => {
+      if (serial) {
+        const SerialCriteria = {serial: serial.serial};
+        const criteria  = Object.assign(SerialCriteria, subDocCriteria);
+        WaWyModel.findOneAndUpdate(criteria, {$set: settings}, (err, doc) => {
+          callback(err, doc);
+        });
+      }
+    });
+  },
+
+  pushSubdoc: (subDocCriteria, datas, callback) => {
+    Service.serial((serial) => {
+      if (serial) {
+        const SerialCriteria = {serial: serial.serial};
+        const criteria  = Object.assign(SerialCriteria, subDocCriteria);
+        WaWyModel.update(criteria, {$push: datas}, (err, doc) => {
+          callback(err, doc);
+        });
+      }
+    });
+  },
+
+  deleteSubdoc: (subDocCriteria, toDelete, callback) => {
+    Service.serial((serial) => {
+      if (serial) {
+        const SerialCriteria = {serial: serial.serial};
+        const criteria  = Object.assign(SerialCriteria, subDocCriteria);
+        WaWyModel.update(criteria, {$pull: toDelete}, (err, doc) => {
+          callback(err, doc);
+        });
+      }
+    });
+  },
 }

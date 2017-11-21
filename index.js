@@ -4,7 +4,7 @@ const corsMiddleware = require('restify-cors-middleware')
 const mongoose = require('mongoose');
 
 const config = require('./config');
-const Settings = require('./controllers/settings');
+const WaWy = require('./controllers/wawy');
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/wawy');
@@ -21,7 +21,7 @@ const server = restify.createServer({
   acceptable: ['application/json', 'image/png']
 });
 
-Settings.init();
+WaWy.init();
 
 server.pre(cors.preflight);
 server.use(cors.actual);

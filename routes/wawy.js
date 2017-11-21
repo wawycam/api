@@ -1,30 +1,42 @@
 const errors = require('restify-errors');
-const Wawy = require('../controllers/wawy');
 const restify = require('restify');
+const Wawy = require('../controllers/wawy');
 
 module.exports = function(server) {
-  server.post('/wawy/reboot', function(req, res, next) {
-    Wawy.reboot(() => {
-      res.send(201);
-    })
-  });
 
-  server.post('/wawy/halt', function(req, res, next) {
-    Wawy.halt(() => {
-      res.send(201);
-    })
-  });
-  
-  server.get('/wawy/serial', function(req, res, next) {
-    Wawy.serial((serial) => {
-      res.send(200, {status: 200, id: serial});
+  server.get('/wawy', function(req, res, next) {
+    Wawy.get((wawy) => {
+      res.json(200, wawy);
     });
   });
 
-  server.get('/wawy/info', function(req, res, next) {
-    Wawy.info((info) => {
-      res.send(200, {status: 200, info: info});
-    });
+  server.post('/wawy/name', function(req, res, next) {
+    if (req.body.name) {
+      Wawy.setname(req.body.name, (result) => {
+        if (result) {
+          res.send(201);
+        } else {
+          res.json(401, {error: 'no authorization' });
+        }
+      });
+    } else {
+      res.json(404, {error: 'bad or missing parameter' });
+    }
+  });
+
+  server.post('/wawy/rotation/:degree', function(req, res, next) {
+    const degree = parseInt(req.params.degree);
+    if ([0, 90, 180, 270].indexOf(degree) > -1) {
+      Wawy.set({rotation: degree}, (err, doc) => {
+        if (err) {
+          res.send(500)
+        } else {
+          res.send(201);
+        }
+      });
+    } else {
+      res.json(404, {error: 'bad or missing parameter: degree acceptable values are only 0, 90, 180, 270' });
+    }
   });
 
   server.post('/wawy/qrcode', function(req, res, next) {

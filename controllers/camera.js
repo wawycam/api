@@ -12,6 +12,7 @@ const exec = require('child_process').exec;
 const tar = require('tar');
 const request  = require('request');
 const Settings = require('../controllers/settings');
+const photoPath = './snap';
 module.exports = {
   file: '',
   timelapse: '',

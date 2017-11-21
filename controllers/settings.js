@@ -7,7 +7,7 @@ const wpa_supplicant = require('wireless-tools/wpa_supplicant');
 const iwconfig = require('wireless-tools/iwconfig');
 
 const Wawy = require('./wawy');
-const Settings = require('../models/settings');
+// const Settings = require('../models/settings');
 const Setup = require('setup')();
 
 const getMatches = (string, regex, index) => {
@@ -177,7 +177,7 @@ module.exports = {
 
   setHostname: (name, callback) => {
     Setup.hostname.save(name);
-    exec(`'sudo -- sh -c -e "echo \'127.0.1.1        ${name}\' >> /etc/hosts"`);
+    exec(`"sudo -- sh -c -e "echo \'127.0.1.1        ${name}\' >> /etc/hosts"`);
     callback(true);
   }
 }
