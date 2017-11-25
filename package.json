@@ -15,7 +15,7 @@
     "diskspace": "^2.0.0",
     "filterous": "^2.0.2-beta",
     "moment": "^2.19.2",
-    "mongoose": "^4.10.8",
+    "mongoose": "^4.13.5",
     "mongoose-timestamp": "^0.6.0",
     "node-dir": "^0.1.17",
     "node-proc": "0.0.1",
@@ -31,10 +31,10 @@
     "restify-jwt": "^0.4.0",
     "restify-plugins": "^1.6.0",
     "rimraf": "^2.6.2",
+    "rpi-wifi-connection": "^1.0.14",
     "setup": "0.0.3",
     "simple-imagemagick": "^0.2.2",
     "tar": "^4.0.2",
-    "uuid": "^3.1.0",
-    "wireless-tools": "^0.19.0"
+    "uuid": "^3.1.0"
   }
 }
