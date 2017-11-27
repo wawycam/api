@@ -6,7 +6,7 @@ module.exports = {
   startBroadcasting: (callback) => {
     Wawy.get((Wawy) => {
       console.log(`Start picam with ${Wawy.rotation}° rotation lens`);
-      picam = exec(`./picam/picam --noaudio --fps 30 -v 2000000 --rotation ${Wawy.rotation} -w 1280 -h 720 -o /run/shm/hls`);
+      picam = exec(`/home/pi/wawycam/picam/picam --noaudio --fps 30 -v 2000000 --rotation ${Wawy.rotation} -w 1280 -h 720 -o /run/shm/hls`);
       Wawy.set({isBroadcasting: true}, () => {});
       picam.stdout.on('data', (data) => {
         console.log(data.trim());
