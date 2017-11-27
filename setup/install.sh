@@ -25,6 +25,15 @@ apt-get install -y build-essential
 apt-get install -y g++
 apt-get install -y ffmpeg
 
+echo "Install PICAM"
+
+wget https://github.com/iizukanao/picam/releases/download/v1.4.6/picam-1.4.6-binary-stretch.tar.xz
+tar -xvf picam-1.4.6-binary-stretch.tar.xz
+mv picam-1.4.6-binary-stretch $DESTINATION/picam
+rm -rf picam-1.4.6-binary-stretch.tar.xz
+
+echo "Install NPM Global Packages"
+
 npm install pm2 -g
 npm install node-gyp -g
 
