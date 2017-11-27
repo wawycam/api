@@ -4,14 +4,40 @@ WaWy Camera API is a set of APIs written in Nodejs that allow any thirds applica
 
 This API is the main piece of an entiere project call "WAWY". More information about WaWy can be found here [http://wawy.io](https://wawy.io)
 
-# Install
+# Quick Install
+
+Wanted to start playing with WaWy Camera API in a couple of minutes ? Just ```wget https://wawy.io/install.sh``` then ```chmod u=rx install.sh``` and ```sudo ./install.sh```
+
+After installation completed, the API should be up and running on port 3001.
+
+```
+curl "http://localhost:3001/service/status" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -d $'{}'
+```
+
+You can also send a request to the API from your computer. Just be sure that your raspberry on your computer are on the same Wifi network and replace "localhost" by the name of your raspberry (can be found in ```/etc/hostname```)
+
+```
+curl "http://{your-raspberypi-name}.local:3001/service/status" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -d $'{}'
+```
+
+*Note: depending on your environmment, the dependencies installation can take up to 10 minutes on a Rapsberry PI 3*
+
+
+# Install (development mode)
+
+Fist, well, clone this repository ;-)
+
 As some functionnalities require dependencies, please run the installer before.
 
 ```
-sudo ./install.sh
+sudo ./setup/install.sh
 ```
 
-Note: On a Rapsberry PI 3, dependencies installation can take up to 10 minutes.
+*Note: On a Rapsberry PI 3, dependencies installation can take up to 10 minutes.*
 
 ```
 npm install
@@ -60,6 +86,44 @@ Response-Time: NaN
 
 "alive"
 ```
+
+# Video Streaming
+
+This API allow you to stream a real-time video. 
+The API use [Picam](https://github.com/iizukanao/picam) for recording and ffmpeg+nginx to broadcast.
+
+Please be sure to run ```sudo ./[wawy-cam-dir]/setup/install.sh``` to have all dependencies installed before use video broadcasting.
+
+Configure Nginx :
+
+```
+cd /etc/nginx/sites-available
+sudo mv default default.conf
+sudo cp [wawy-cam-dir]/setup/nginx-default-conf ./default
+sudo service nginx restart
+```
+
+To start broadcasting :
+
+```
+curl -X "POST" "http://localhost:3001/video/broadcast" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -d $'{}'
+```
+
+The API should respond 
+
+```
+{
+	"url":{
+		"local":"http://{your-camera-name}.local/live/index.m3u8",
+		"remote":"http://xxx.xxx.xxx.xxx/live/index.m3u8"}}
+```
+
+Open a video player like VLC and copy/paste the "local" url. You should see the video streaming.
+
+*Note : The HTTP Live Streaming latency is 3-4 seconds.*
+
 
 # API DOCUMENTATION
 

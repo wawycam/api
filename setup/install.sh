@@ -28,28 +28,4 @@ apt-get install -y ffmpeg
 npm install pm2 -g
 npm install node-gyp -g
 
-echo "Install WAWY CAMERA API"
-
-mkdir ${DESTINATION}
-chown -R pi:pi ${DESTINATION}
-sudo -u pi bash << EOF
-
-cd ${DESTINATION}
-wget http://wawy.io/builds/cam-api-tarball/cam-api-latest.tgz
-
-# Extract latest
-tar -xvf cam-api-latest.tgz
-
-# Delete tarball
-rm -rf cam-api-latest.tgz
-
-# Install dependencies
-cd ${DESTINATION}/api
-npm install
-
-sudo -s
-
-# Start API server
-npm start
-
 
