@@ -39,6 +39,5 @@
   },
   "devDependencies": {
     "nodemon": "^1.12.1"
-  },
-  "postinstall": "cd node_modules/canvas && node-gyp rebuild"
+  }
 }
