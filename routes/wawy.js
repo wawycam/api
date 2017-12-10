@@ -11,7 +11,7 @@ module.exports = function(server) {
   });
 
   server.post('/wawy/name', function(req, res, next) {
-    if (req.body.name) {
+    if (req.body && req.body.name) {
       Wawy.setname(req.body.name, (result) => {
         if (result) {
           res.send(201);
@@ -24,8 +24,8 @@ module.exports = function(server) {
     }
   });
 
-  server.post('/wawy/rotation/:degree', function(req, res, next) {
-    const degree = parseInt(req.params.degree);
+  server.post('/wawy/rotation', function(req, res, next) {
+    const degree = parseInt(req.body.degree);
     if ([0, 90, 180, 270].indexOf(degree) > -1) {
       Wawy.set({rotation: degree}, (err, doc) => {
         if (err) {

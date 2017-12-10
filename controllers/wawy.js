@@ -1,3 +1,4 @@
+const Logger = require('../utils/logger');
 const Setup = require('setup')();
 const Exec = require('child_process').exec;
 const Service = require('../controllers/service');
@@ -5,10 +6,10 @@ const QRCode = require('qrcode');
 const WaWyModel = require('../models/wawy');
 
 const Self = module.exports = {
-  init: () => {
-    console.log('Init WaWy');
+  init: (callback) => {
+    Logger.log('verbose', 'Init WaWy')
     Service.serial((serial) => {
-      console.log('Initialisation of Wawy #', serial);
+      Logger.log('verbose', 'Initialisation of Wawy # %s', serial.serial);
       if (serial) {
         const WaWySettings = new WaWyModel({
           serial: serial.serial,
@@ -20,12 +21,15 @@ const Self = module.exports = {
           if(wawy.length === 0) {
             WaWySettings.save((err, wawy) => {
               if (err) console.log(err);
-              console.log(wawy);
+              callback(wawy);
             })
+          } else {
+            callback(wawy);
           }
         })
       } else {
-        console.error('no serial');
+        Logger.log('error', 'No serial');
+        callback(false);
       }
     })
   },
@@ -46,7 +50,6 @@ const Self = module.exports = {
       WaWyModel.findOne({serial: serial.serial}, (err, wawy) => {
         if (err) return console.error(err);
         const url = `http://${wawy.name}.local`
-        console.log(url);
         QRCode.toFile('./public/qrcode.svg',  url, (err) => {
           callback(201)
         })

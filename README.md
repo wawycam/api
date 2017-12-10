@@ -523,11 +523,13 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
     No specific headers needed.
 
 + Url Params:
-    rotation lens in degree
+    No specific query parameters needed.
 
 + Body:
 ```
-{}
+{
+    "degree": 90
+}
 ```
 
 ***

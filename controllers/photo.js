@@ -1,3 +1,4 @@
+const Logger = require('../utils/logger');
 const RaspiCam = require("raspicam");
 const Uuid = require('uuid/v4');
 const Dir = require('node-dir');
@@ -18,7 +19,6 @@ module.exports = {
   file: '',
   timelapse: '',
   snap: (callback) => {
-    console.log('Snap in progress...');
     Wawy.get((wawy) => {
       const camera = new RaspiCam({
         mode: "photo",
@@ -31,7 +31,7 @@ module.exports = {
       });
   
       camera.on("start", (err, timestamp) => {
-        console.log("Snap started...");
+        Logger.log('verbose', 'Snap started...');
       });
   
       camera.on("read", (err, timestamp, filename) => {
@@ -42,9 +42,9 @@ module.exports = {
         callback(this.file);
       });
   
-      camera.on("stop", (err, timestamp) => {
-        console.log("Snap child process has been stopped at " + timestamp);
-      });
+      // camera.on("stop", (err, timestamp) => {
+      //   console.log("Snap child process has been stopped at " + timestamp);
+      // });
   
       camera.start();  
     })
