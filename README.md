@@ -237,6 +237,9 @@ Open a video player like VLC and copy/paste the "local" url. You should see the 
 }
 ```
 
+*note: assuming you correctly set the nginx configuration you can display the photo in a browser via http://{your-raspberypi-name}/photo/{photo-url}*
+
+
 ## `POST` /photo/filter
 
 *Apply a filter on a photo.  
@@ -420,7 +423,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 }
 ```
 
-#WAWY
+# WAWY
 
 ## `GET` /wawy
 
