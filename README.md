@@ -176,7 +176,7 @@ Open a video player like VLC and copy/paste the "local" url. You should see the 
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 {
 	"url":{
@@ -230,7 +230,7 @@ Open a video player like VLC and copy/paste the "local" url. You should see the 
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 {
 	"photo": "025d7c1e-3766-45c1-bf41-ed0c4469c08f.png"
@@ -251,7 +251,7 @@ Filters can be : 'xpro2', 'willow', 'lofi', 'juno', 'clarendon', '1977'*
     No specific query parameters needed.
 
 + Body:
-+ 
+
 ```
 {
     "filter": "xpro2",
@@ -319,7 +319,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
     No specific query parameters needed.
 
 + Body:
-+ 
+
 ```
 {
     "folder": "timelapse-2017-11-20-10:29"
@@ -369,7 +369,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 {
 	"photo": "0044.png"
@@ -396,7 +396,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 {
   "photos": [
@@ -443,7 +443,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 {
   "__v": 0,
@@ -619,7 +619,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 {
 	"version": "0.4.0"
@@ -647,7 +647,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 "alive"
 ```
@@ -673,7 +673,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 {
   "disk": {
@@ -705,7 +705,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 {
 	"serial":"00000000fe864d3f"
@@ -777,7 +777,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 {
     "list": [
@@ -814,7 +814,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
     No specific query parameters needed.
 
 + Body:
-+ 
+
 ```
 {
     "ssid": "home",
@@ -853,7 +853,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 {
     "list": [
@@ -892,7 +892,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Status: **200**
 
 + Body:
-+ 
+
 ```
 {
     "ssid": "home",
