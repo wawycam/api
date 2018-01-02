@@ -2,7 +2,7 @@
 
 WaWy Camera API is a set of APIs written in Node JS that allow any thirds applications like Smartphone App or Web App to take photo, create a timelapse or streaming a video from a Raspberry Pi.
 
-This API is the main piece of an entiere project call "WAWY". More information about WaWy can be found here [http://wawy.io](https://wawy.io)
+This API is the main piece of an entiere project call "WAWY". More information about WaWy can be found here [https://wawy.io](https://wawy.io)
 
 # Quick Install
 
@@ -22,7 +22,7 @@ The answer should be
 {"version":"0.4.0"}
 ```
 
-You can also send a request to the API from your computer. Just be sure that your raspberry on your computer are on the same Wifi network and replace "localhost" by the name of your raspberry (can be found in ```/etc/hostname```)
+You can also send a request to the API from your computer. Just be sure that your Raspberry and your computer are on the same Wifi network and replace "localhost" by the name of your raspberry (can be found in ```/etc/hostname```)
 
 ```
 curl "http://{your-raspberypi-name}.local:3001/service/version" -H 'Content-Type: application/json; charset=utf-8'
@@ -31,9 +31,38 @@ curl "http://{your-raspberypi-name}.local:3001/service/version" -H 'Content-Type
 *Note: depending on your environmment, the dependencies installation can take up to 10 minutes on a Rapsberry PI 3*
 
 
-# Install (development mode)
+# Install (regular mode)
 
 Fist, well, clone this repository ;-)
+
+```
+git clone https://github.com/wawycam/api.git
+```
+
+and then
+
+```
+npm install
+```
+
+and then
+
+```
+npm start
+```
+
+
+*Note: as some features require dependencies, we encourage you to run the installer before.*
+*You can get more information about the installer [here](https://github.com/wawycam/installer).*
+
+
+# Install (dev mode)
+
+Clone this repository
+
+```
+git clone https://github.com/wawycam/api.git
+```
 
 and then
 
@@ -47,17 +76,15 @@ and then
 npm run dev
 ```
 
-
-*Note: as some features require dependencies, we encourage you to run the installer before.*
-*You can get more information about the installer [here](https://github.com/wawycam/installer).*
-
-# Running
-
-```
-sudo npm run dev
-```
-
 The APIs is running on your Raspberry PI on port 3001 in "development" mode.
+
+## Unit Testing
+
+```
+npm run test
+```
+
+## API Request 
 
 Be sure that the Rapsberry Pi and your Computer are on the same WiFi. 
 
@@ -69,9 +96,7 @@ You can request the API depending on the name of your Rapsberry PI. The name can
 Open up a terminal on your computer and type the folowing command (please change "wawycam" according to the name of your Raspberry Pi)
 
 ```
-curl "http://wawycam.local:3001/service/status" \
-     -H 'Content-Type: application/json; charset=utf-8' \
-     -d $'{}'
+curl "http://wawycam.local:3001/service/version" -H 'Content-Type: application/json; charset=utf-8'
 ```
 
 Wich should return this result
@@ -92,7 +117,7 @@ Api-Version: 1.0.0
 Request-Id: f7db37ca-2264-40da-9410-c7310a710441
 Response-Time: NaN
 
-"alive"
+{"version":"0.4.0"}
 ```
 
 # Video Streaming
@@ -100,23 +125,13 @@ Response-Time: NaN
 This API allow you to stream a real-time video. 
 The API use [Picam](https://github.com/iizukanao/picam) for recording and ffmpeg+nginx to broadcast.
 
-Please be sure to run ```sudo ./[wawy-cam-dir]/setup/install.sh``` to have all dependencies installed before use video broadcasting.
-
-Configure Nginx :
-
-```
-cd /etc/nginx/sites-available
-sudo mv default default.conf
-sudo cp [wawy-cam-dir]/setup/nginx-default-conf ./default
-sudo service nginx restart
-```
+Please go to [https://github.com/wawycam/installer](https://github.com/wawycam/installer) to get more informations about dependencies and configuration.
 
 To start broadcasting :
 
 ```
 curl -X "POST" "http://localhost:3001/video/broadcast" \
-     -H 'Content-Type: application/json; charset=utf-8' \
-     -d $'{}'
+     -H 'Content-Type: application/json; charset=utf-8'
 ```
 
 The API should respond 
@@ -125,7 +140,9 @@ The API should respond
 {
 	"url":{
 		"local":"http://{your-camera-name}.local/live/index.m3u8",
-		"remote":"http://xxx.xxx.xxx.xxx/live/index.m3u8"}}
+		"remote":"http://xxx.xxx.xxx.xxx/live/index.m3u8"
+	}
+}
 ```
 
 Open a video player like VLC and copy/paste the "local" url. You should see the video streaming.
@@ -133,7 +150,7 @@ Open a video player like VLC and copy/paste the "local" url. You should see the 
 *Note : The HTTP Live Streaming latency is 3-4 seconds.*
 
 
-# API DOCUMENTATION
+# REST API DOCUMENTATION
 
 # VIDEO
 
@@ -149,10 +166,7 @@ Open a video player like VLC and copy/paste the "local" url. You should see the 
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -184,10 +198,7 @@ Open a video player like VLC and copy/paste the "local" url. You should see the 
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -210,10 +221,7 @@ Open a video player like VLC and copy/paste the "local" url. You should see the 
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -288,10 +296,7 @@ Filters can be : 'xpro2', 'willow', 'lofi', 'juno', 'clarendon', '1977'*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -334,10 +339,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     timelapse folder
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -358,10 +360,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     timelpasefolder.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -389,10 +388,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -438,10 +434,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -560,10 +553,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -584,10 +574,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -623,10 +610,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -638,7 +622,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + 
 ```
 {
-	"version": "1.0.0"
+	"version": "0.4.0"
 }
 ```
 
@@ -654,10 +638,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body:-
 
 ***
 
@@ -683,10 +664,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -718,10 +696,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -733,7 +708,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + 
 ```
 {
-	"serial":"00000000fe864d2f"
+	"serial":"00000000fe864d3f"
 }
 ```
 
@@ -749,10 +724,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -773,10 +745,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -799,11 +768,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-+ 
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -878,11 +843,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-+ 
-```
-{}
-```
++ Body: -
 
 ***
 
@@ -921,11 +882,7 @@ Note: this route call WaWy Microservice API [read more](https://wip.io)*
 + Url Params:
     No specific query parameters needed.
 
-+ Body:
-+ 
-```
-{}
-```
++ Body: -
 
 ***
 
