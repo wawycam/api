@@ -1,27 +1,31 @@
 # WaWy Camera API
 
-WaWy Camera API is a set of APIs written in Nodejs that allow any thirds applications like Smartphone App or Web App to take photo, create a timelapse or streaming a video from a Raspberry Pi.
+WaWy Camera API is a set of APIs written in Node JS that allow any thirds applications like Smartphone App or Web App to take photo, create a timelapse or streaming a video from a Raspberry Pi.
 
 This API is the main piece of an entiere project call "WAWY". More information about WaWy can be found here [http://wawy.io](https://wawy.io)
 
 # Quick Install
 
-Wanted to start playing with WaWy Camera API in a couple of minutes ? Just ```wget https://wawy.io/install.sh``` then ```chmod u=rx install.sh``` and ```sudo ./install.sh```
+Wanted to start playing with WaWy Camera API in a couple of minutes ? Just ```wget https://raw.githubusercontent.com/wawycam/installer/master/wawycam-install-dependencies.sh``` then ```chmod u=rx wawycam-install-dependencies.sh``` and ```sudo ./wawycam-install-dependencies.sh```
+
+You can get more information about the installer [here](https://github.com/wawycam/installer).
 
 After installation completed, the API should be up and running on port 3001.
+On your Raspberry Pi, just execute this request :
 
 ```
-curl "http://localhost:3001/service/status" \
-     -H 'Content-Type: application/json; charset=utf-8' \
-     -d $'{}'
+curl "http://localhost:3001/service/version" -H 'Content-Type: application/json; charset=utf-8'
+```
+The answer should be
+
+```
+{"version":"0.4.0"}
 ```
 
 You can also send a request to the API from your computer. Just be sure that your raspberry on your computer are on the same Wifi network and replace "localhost" by the name of your raspberry (can be found in ```/etc/hostname```)
 
 ```
-curl "http://{your-raspberypi-name}.local:3001/service/status" \
-     -H 'Content-Type: application/json; charset=utf-8' \
-     -d $'{}'
+curl "http://{your-raspberypi-name}.local:3001/service/version" -H 'Content-Type: application/json; charset=utf-8'
 ```
 
 *Note: depending on your environmment, the dependencies installation can take up to 10 minutes on a Rapsberry PI 3*
@@ -31,17 +35,21 @@ curl "http://{your-raspberypi-name}.local:3001/service/status" \
 
 Fist, well, clone this repository ;-)
 
-As some functionnalities require dependencies, please run the installer before.
-
-```
-sudo ./setup/install.sh
-```
-
-*Note: On a Rapsberry PI 3, dependencies installation can take up to 10 minutes.*
+and then
 
 ```
 npm install
 ```
+
+and then
+
+```
+npm run dev
+```
+
+
+*Note: as some features require dependencies, we encourage you to run the installer before.*
+*You can get more information about the installer [here](https://github.com/wawycam/installer).*
 
 # Running
 

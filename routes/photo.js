@@ -28,6 +28,7 @@ module.exports = function(server) {
       res.json(200, {photo: photo});
     });
   });
+
   server.post('/photo/filter', function(req, res, next) {
     const filter = req.body.filter;
     const photo = req.body.photo;
