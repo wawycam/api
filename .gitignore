@@ -1,0 +1,7 @@
+._*
+.DS_Store
+logfile
+npm-debug.log
+logs/
+snap/
+node_modules/
