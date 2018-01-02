@@ -2,6 +2,8 @@
 .DS_Store
 logfile
 npm-debug.log
+package-lock.json
 logs/
 snap/
 node_modules/
+filters/
