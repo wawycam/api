@@ -65,8 +65,8 @@ module.exports = function(server) {
   server.post('/photo/timelapse/footage', function(req, res, next) {
     const folder = req.body.folder;
     if (folder) {
-      Photo.makeTimelapse(folder, req.body.type, () => {
-        res.send(201);
+      Photo.stitch(folder, req.body.type, (result) => {
+        res.json(result);
       });
     }
   });

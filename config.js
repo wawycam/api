@@ -6,5 +6,9 @@ module.exports = {
 	env: process.env.NODE_ENV || 'development',
 	port: process.env.PORT || 3001,
 	base_url: process.env.BASE_URL || 'http://localhost:3001',
-	microservice_url: process.env.MICROSERVICE_URL || 'http://localhost:3021'
+	microservice_url: process.env.MICROSERVICE_URL || 'http://localhost:3021',
+	convert: {
+		inputFiles: '480x_%04d.png',
+		outputFile: 'timelapse.mp4'
+	},
 };

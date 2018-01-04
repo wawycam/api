@@ -1,5 +1,6 @@
 const Logger = require('../utils/logger');
 const RaspiCam = require("raspicam");
+const Exec = require('child_process').exec;
 const Uuid = require('uuid/v4');
 const Dir = require('node-dir');
 const Moment = require("moment");
@@ -7,6 +8,7 @@ const Im = require('simple-imagemagick');
 const Rimraf = require('rimraf');
 const Fs = require('fs');
 const Filterous = require('filterous');
+const Path = require('path');
 const PathParse = require('path-parse');
 const Tar = require('tar');
 const Request  = require('request');
@@ -201,6 +203,42 @@ module.exports = {
           return callback(timelapse.photos[timelapse.photos.length-1].name);
         }
       });
+    });
+  },
+
+  stitch: (folder, type, callback) => {
+    Wawy.get((wawy) => {
+      const timelapsFolder = `${photoPath}/${folder}`;
+      const photosToUpload = [];
+      const tl = wawy.timelapses.filter(function (tl) {
+        return tl.name === folder;
+      }).pop();
+      if(tl) {
+        Wawy.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "processing"}, (err, doc) => {
+          if (err) throw err;
+          Logger.log('verbose', 'Timelapse video processing...');
+          if (!Fs.existsSync(Path.dirname(timelapsFolder))){
+            return callback(404);
+          } else {
+            const input = `${timelapsFolder}/${Config.convert.inputFiles}`;
+            const output = `${timelapsFolder}/${Config.convert.outputFile}`;
+            const cmd =`ffmpeg -y -r 6 -i ${input} ${output}`
+            const ffmpegCli = Exec(cmd);
+            ffmpegCli.stderr.on('data', (data) => {
+              Logger.log('verbose', data.trim());
+            });
+            ffmpegCli.stdout.on('data', (data) => {
+              Logger.log('verbose', data.trim());
+            });
+            ffmpegCli.on('exit', (code) => {
+              Wawy.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "achieve"}, (err, doc) => {
+                if (err) throw err;
+              });
+            });
+            return callback(202);
+          }
+        });
+      }
     });
   },
 
