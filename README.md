@@ -33,7 +33,7 @@ curl "http://{your-raspberypi-name}.local:3001/service/version" -H 'Content-Type
 
 # Install (regular mode)
 
-Fist, well, clone this repository ;-)
+First, well, clone this repository ;-)
 
 ```
 git clone https://github.com/wawycam/api.git
