@@ -179,7 +179,7 @@ module.exports = {
 
   deleteTimelapse: (folder, callback) => {
     Wawy.get((wawy) => {
-      const tl = wawy.folder.filter(function (timelapse) {
+      const tl = wawy.timelapses.filter(function (timelapse) {
         return timelapse.name === folder
       }).pop();
       if (tl) {
