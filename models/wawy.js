@@ -7,6 +7,7 @@ const WaWySchema = new mongoose.Schema(
 		name: String,
 		isBroadcasting: Boolean,
 		isSnapping: Boolean,
+		isRecording: Boolean,
 		rotation: Number,
 		timelapses: [{
 			count: Number,
