@@ -11,10 +11,10 @@ module.exports = {
       Logger.log('verbose', `Start Video Recording with ${Wawy.rotation}° rotation lens`);
       Video = Exec(`raspivid -v --nopreview -t 0 -w 1280 -h 720 -fps 30 -b 1200000 --rotation ${Wawy.rotation} -o ${photoPath}/${Uuid()}.h264`);
       Wawy.set({isBroadcasting: true}, () => {});
-      //-- command output is on stderr no stdout
+      //-- command output is on stderr no stdout      
       Video.stderr.on('data', (data) => {
         Logger.log('verbose', data.trim());
-        if(data.trim() === 'Starting video capture') {
+        if(data.trim().indexOf('Starting video capture') > -1) {
           callback(true);
         } else if (data.trim().indexOf('error') > -1) {
           callback(false);
