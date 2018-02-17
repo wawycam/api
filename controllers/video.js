@@ -1,8 +1,43 @@
 const Logger = require('../utils/logger');
 const Exec = require('child_process').exec;
 const Wawy = require('../controllers/wawy');
+const photoPath = './snap'; //--should be in config file
+const Uuid = require('uuid/v4');
 
 module.exports = {
+
+  start: (callback) => {
+    Wawy.get((Wawy) => {
+      Logger.log('verbose', `Start Video Recording with ${Wawy.rotation}° rotation lens`);
+      Video = Exec(`raspivid -v --nopreview -t 0 -w 1280 -h 720 -fps 30 -b 1200000 --rotation ${Wawy.rotation} -o ${photoPath}/${Uuid()}.h264`);
+      Wawy.set({isBroadcasting: true}, () => {});
+      //-- command output is on stderr no stdout
+      Video.stderr.on('data', (data) => {
+        Logger.log('verbose', data.trim());
+        if(data.trim() === 'Starting video capture') {
+          callback(true);
+        } else if (data.trim().indexOf('error') > -1) {
+          callback(false);
+        }
+      });
+    });
+  },
+
+  stop: (callback) => {
+    Wawy.get((Wawy) => {
+      Logger.log('verbose', `Stop Video Recording`);
+      Video = Exec("ps aux  |  grep -i 'raspivid'  |  awk '{print $2}'  |  xargs sudo kill -9");
+      if (Video) {
+        Video.on('close', (code) => {
+          Logger.log('verbose', `Stop capturing: ${code}`);
+          Wawy.set({isBroadcasting: false}, () => {});
+          callback(true);
+        });
+      } else {
+        callback(true);
+      }
+    });
+  },
 
   startBroadcasting: (callback) => {
     Wawy.get((Wawy) => {

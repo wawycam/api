@@ -2,6 +2,26 @@ const Config = require('../config');
 const Video = require('../controllers/video');
 
 module.exports = function(server) {
+  server.post('/video', function(req, res, next) {
+    Video.start((isStarted) => {
+      if (isStarted) {
+        res.send(201)
+      } else {
+        res.send(404);
+      }
+    });   
+  });
+
+  server.del('/video', function(req, res, next) {
+    Video.stop((isStopped) => {
+      if (isStopped) {
+        res.send(204);
+      } else {
+        res.send(404);
+      }
+    });   
+  });
+
   server.post('/video/broadcast', function(req, res, next) {
     Video.startBroadcasting((isStarted) => {
       if (isStarted) {
