@@ -9,7 +9,7 @@ module.exports = {
   start: (callback) => {
     Wawy.get((Camera) => {
       Logger.log('verbose', `Start Video Recording with ${Camera.rotation}° rotation lens`);
-      Video = Exec(`raspivid -v --nopreview -t 0 -w 1280 -h 720 -fps 30 -b 1200000 --rotation ${Wawy.rotation} -o ${photoPath}/${Uuid()}.h264`);
+      Video = Exec(`raspivid -v --nopreview -t 0 -w 1280 -h 720 -fps 30 -b 1200000 --rotation ${Camera.rotation} -o ${photoPath}/${Uuid()}.h264`);
       Wawy.set({isRecording: true}, () => {});
       //-- command output is on stderr no stdout
       Video.stderr.on('data', (data) => {
@@ -40,7 +40,7 @@ module.exports = {
   startBroadcasting: (callback) => {
     Wawy.get((Camera) => {
       Logger.log('verbose', `Start picam with ${Camera.rotation}° rotation lens`);
-      picam = Exec(`/home/pi/wawycam/picam/picam --noaudio --fps 30 -v 2000000 --rotation ${Wawy.rotation} -w 1280 -h 720 -o /run/shm/hls`);
+      picam = Exec(`/home/pi/wawycam/picam/picam --noaudio --fps 30 -v 2000000 --rotation ${Camera.rotation} -w 1280 -h 720 -o /run/shm/hls`);
       Wawy.set({isBroadcasting: true}, () => {});
       picam.stdout.on('data', (data) => {
         Logger.log('verbose', data.trim());
