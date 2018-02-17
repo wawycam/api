@@ -14,7 +14,7 @@ module.exports = {
       //-- command output is on stderr no stdout
       Video.stderr.on('data', (data) => {
         Logger.log('verbose', data.trim());
-        if(data.trim() === 'Starting video capture') {
+        if(data.trim().indexOf('Starting video capture') > -1) {
           callback(true);
         } else if (data.trim().indexOf('error') > -1) {
           callback(false);
