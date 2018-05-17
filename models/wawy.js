@@ -9,6 +9,7 @@ const WaWySchema = new mongoose.Schema(
 		isSnapping: Boolean,
 		isRecording: Boolean,
 		rotation: Number,
+		isGeolocationEnable: Boolean,
 		timelapses: [{
 			count: Number,
 			name: String,

@@ -29,7 +29,7 @@ module.exports = function(server) {
     if ([0, 90, 180, 270].indexOf(degree) > -1) {
       Wawy.set({rotation: degree}, (err, doc) => {
         if (err) {
-          res.send(500)
+          res.send(500);
         } else {
           res.send(201);
         }
@@ -37,6 +37,17 @@ module.exports = function(server) {
     } else {
       res.json(404, {error: 'bad or missing parameter: degree acceptable values are only 0, 90, 180, 270' });
     }
+  });
+
+  server.post('/wawy/enableGeolocation', function(req, res, next) {
+    const isGeolocationEnable = req.body.IsGeolocationEnable;
+    Wawy.set({ isGeolocationEnable }, (err, doc) => {
+      if (err) {
+        res.send(500);
+      } else {
+        res.send(201);
+      }
+    });
   });
 
   server.post('/wawy/qrcode', function(req, res, next) {

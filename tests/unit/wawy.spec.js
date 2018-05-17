@@ -70,6 +70,25 @@ describe('WaWy API', () => {
     });
   });
 
+  describe('POST /wawy/enableGeolocation', () => {
+    it('should enable geolocation', (done) => {
+      _SuperTest
+        .post('/wawy/enableGeolocation')
+        .send({
+          isGeolocationEnable: true,
+        })
+        .end((err, response) => {
+            if (err) {
+              done(err);
+            }
+            else {
+              expect(response.status).to.equal(201);
+              done();
+            }
+        });
+    });
+  });
+
   describe('POST /wawy/qrcode', () => {
     it('should set qrcode based on Wawy cam name', (done) => {
       _SuperTest
