@@ -40,7 +40,7 @@ module.exports = function(server) {
   });
 
   server.post('/wawy/enableGeolocation', function(req, res, next) {
-    const isGeolocationEnable = req.body.IsGeolocationEnable;
+    const isGeolocationEnable = req.body.isGeolocationEnable;
     Wawy.set({ isGeolocationEnable }, (err, doc) => {
       if (err) {
         res.send(500);

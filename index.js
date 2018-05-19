@@ -1,6 +1,7 @@
 const restify = require('restify');
 const restifyPlugins = require('restify-plugins');
 const corsMiddleware = require('restify-cors-middleware')
+const socketio = require('socket.io');
 const mongoose = require('mongoose');
 const Logger = require('./utils/logger');
 const config = require('./config');
@@ -24,6 +25,16 @@ server.use(restifyPlugins.bodyParser({ mapParams: true }));
 server.use(restifyPlugins.acceptParser(server.acceptable));
 server.use(restifyPlugins.queryParser({ mapParams: true }));
 server.use(restifyPlugins.fullResponse());
+
+const io = socketio(server.server);
+
+io.on('connection', function(socket) {
+  console.log('Someone is connnecting !');
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function(data) {
+      console.log(data);
+  });
+});
 
 module.exports = server.listen(config.port, function () {
   require('./routes')(server);
