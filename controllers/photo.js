@@ -22,9 +22,10 @@ module.exports = {
 
   snap: (Camera, callback) => {
     const Wawy = require('../controllers/wawy');
+    const photoName = `${Path.resolve(__dirname, photoPath)}/${Uuid()}`;
     const camera = new RaspiCam({
       mode: "photo",
-      output: `${Path.resolve(__dirname, photoPath)}/${Uuid()}.png`,
+      output: `${photoName}.png`,
       encoding: "png",
       timeout: 2000,
       rotation: Camera.rotation,
@@ -42,6 +43,15 @@ module.exports = {
     });
 
     camera.on("exit", (timestamp) => {
+      Wawy.set({isSnapping: false}, () => {});
+      Im.convert([
+        `${photoName}.png`,
+        '-resize',
+        '480',
+        `${photoName}_480.png`,
+        ], (err, stdout) => {
+          if (err) console.log(err);
+        });
       callback(this.file);
     });
 

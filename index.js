@@ -30,7 +30,7 @@ const io = socketio(server.server);
 
 io.on('connection', function(socket) {
   console.log('Someone is connnecting !');
-  socket.emit('news', { hello: 'world' });
+  socket.emit('msg', { msg: 'world' });
   socket.on('my other event', function(data) {
       console.log(data);
   });
