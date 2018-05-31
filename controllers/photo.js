@@ -14,42 +14,38 @@ const Tar = require('tar');
 const Request  = require('request');
 
 const Config = require('../config');
-const Wawy = require('../controllers/wawy');
-const photoPath = './snap'; //--should be in config file
+const photoPath = '../snap'; //--should be in config file
 
 module.exports = {
   file: '',
   timelapse: '',
-  snap: (callback) => {
-    Wawy.get((wawy) => {
-      const camera = new RaspiCam({
-        mode: "photo",
-        output: `${photoPath}/${Uuid()}.png`,
-        encoding: "png",
-        timeout: 2000,
-        rotation: wawy.rotation,
-        width: 1440,
-        height: 1080,
-      });
-  
-      camera.on("start", (err, timestamp) => {
-        Logger.log('verbose', 'Snap started...');
-      });
-  
-      camera.on("read", (err, timestamp, filename) => {
-        this.file = filename;
-      });
-  
-      camera.on("exit", (timestamp) => {
-        callback(this.file);
-      });
-  
-      // camera.on("stop", (err, timestamp) => {
-      //   console.log("Snap child process has been stopped at " + timestamp);
-      // });
-  
-      camera.start();  
-    })
+
+  snap: (Camera, callback) => {
+    const Wawy = require('../controllers/wawy');
+    const camera = new RaspiCam({
+      mode: "photo",
+      output: `${Path.resolve(__dirname, photoPath)}/${Uuid()}.png`,
+      encoding: "png",
+      timeout: 2000,
+      rotation: Camera.rotation,
+      width: 1440,
+      height: 1080,
+    });
+
+    camera.on("start", (err, timestamp) => {
+      Logger.log('verbose', 'Snap started...');
+      Wawy.set({isSnapping: true}, () => {});
+    });
+
+    camera.on("read", (err, timestamp, filename) => {
+      this.file = filename;
+    });
+
+    camera.on("exit", (timestamp) => {
+      callback(this.file);
+    });
+
+    camera.start();  
   },
 
   list: (callback) => {
@@ -90,7 +86,6 @@ module.exports = {
   },
 
   startTimelapse: (interval, callback) => {
-    console.log(interval);
     Wawy.get((wawy) => {
       const Self = this;
       const date = Moment().format('YYYY-MM-DD-HH:mm');

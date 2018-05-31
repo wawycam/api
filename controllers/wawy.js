@@ -1,6 +1,7 @@
 const Logger = require('../utils/logger');
 const Setup = require('setup')();
 const Exec = require('child_process').exec;
+const AutoMode = require('../controllers/automode');
 const Service = require('../controllers/service');
 const QRCode = require('qrcode');
 const WaWyModel = require('../models/wawy');
@@ -16,14 +17,15 @@ const Self = module.exports = {
           name: 'wawycam',
           rotation: 90
         });
-        WaWyModel.find({serial: serial.serial}, (err, wawy) => {
+        WaWyModel.findOne({serial: serial.serial}, (err, wawy) => {
           if (err) return console.error(err);
-          if(wawy.length === 0) {
+          if(!wawy) {
             WaWySettings.save((err, wawy) => {
               if (err) console.log(err);
               callback(wawy);
             })
           } else {
+            AutoMode.set(wawy);
             callback(wawy);
           }
         })

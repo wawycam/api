@@ -50,6 +50,28 @@ module.exports = function(server) {
     });
   });
 
+  server.post('/wawy/enableAutoSnap', function(req, res, next) {
+    const isAutoSnapEnable = req.body.isAutoSnapEnable;
+    Wawy.set({ isAutoSnapEnable }, (err, doc) => {
+      if (err) {
+        res.send(500);
+      } else {
+        res.send(201);
+      }
+    });
+  });
+
+  server.post('/wawy/enableAutoVideo', function(req, res, next) {
+    const isAutoVideoEnable = req.body.isAutoVideoEnable;
+    Wawy.set({ isAutoVideoEnable }, (err, doc) => {
+      if (err) {
+        res.send(500);
+      } else {
+        res.send(201);
+      }
+    });
+  });
+
   server.post('/wawy/qrcode', function(req, res, next) {
     Wawy.generateQrCode(() => {
       res.send(201);

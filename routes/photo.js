@@ -1,7 +1,7 @@
 const Config = require('../config');
 const Photo = require('../controllers/photo');
 
-module.exports = function(server) {
+module.exports = function(server, wawy) {
   server.get('/photo', function(req, res, next) {
     Photo.list((photos) => {
       res.json(200, {photos: photos});
@@ -24,7 +24,7 @@ module.exports = function(server) {
   });
 
   server.post('/photo', function(req, res, next) {
-    Photo.snap((photo) => {
+    Photo.snap(wawy, (photo) => {
       res.json(200, {photo: photo});
     });
   });

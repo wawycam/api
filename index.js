@@ -37,7 +37,6 @@ io.on('connection', function(socket) {
 });
 
 module.exports = server.listen(config.port, function () {
-  require('./routes')(server);
   
   mongoose.Promise = global.Promise;
   mongoose.connect('mongodb://localhost/wawy', { useMongoClient: true} );
@@ -49,7 +48,8 @@ module.exports = server.listen(config.port, function () {
   });
 
   db.once('open', () => {
-    WaWy.init(() => {
+    WaWy.init((wawy) => {
+      require('./routes')(server, wawy);
       Logger.info(`Server ${server.name} is listening on port ${config.port}`);
     })
   });
