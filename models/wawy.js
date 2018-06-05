@@ -12,17 +12,26 @@ const WaWySchema = new mongoose.Schema(
 		isGeolocationEnable: Boolean,
 		isAutoVideoEnable: Boolean,
 		isAutoSnapEnable: Boolean,
-		track:[{
+		tracks:[{
 			name: String,
-			accuracy: Number,
-			altitude: Number,
-			heading: Number,
-			speed: Number,
+			count: Number,
 			createdAt: { type: Date, default: Date.now },
-			location: {
-				type: { type: String },
-				coordinates: [],
-			},
+			updatedAt: { type: Date, default: Date.now },
+			geoData: [{
+				accuracy: Number,
+				altitude: Number,
+				createdAt: { type: Date, default: Date.now },
+				heading: Number,
+				location: {
+					type: { type: String },
+					coordinates: [],
+				},
+				speed: Number,
+				media: {
+					file: String,
+					type: { type: String },
+				}
+			}],
 		}],
 		timelapses: [{
 			count: Number,
@@ -38,4 +47,6 @@ WaWySchema.index({ 'track.location': '2dsphere' });
 WaWySchema.plugin(timestamps);
 
 const WaWy = mongoose.model('Camera', WaWySchema);
-module.exports = WaWy;    
+module.exports = WaWy;
+
+module.exports.toObjectId = string => mongoose.Types.ObjectId(string);
