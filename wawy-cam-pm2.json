@@ -1,5 +1,8 @@
 {
-  "name" : "WaWyCam",
-  "script" : "index.js",
-  "cwd" : "/home/pi/wawycam/api"
+  "name": "WaWyCam",
+  "script": "index.js",
+  "cwd": "/home/pi/wawycam/api",
+  "env": {
+    "RTS_URI": "http://192.168.0.70:3040"
+  }
 }
