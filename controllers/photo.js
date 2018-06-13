@@ -20,7 +20,7 @@ module.exports = {
   file: '',
   timelapse: '',
 
-  snap: (Camera, callback) => {
+  snap: (Camera, RTS, callback) => {
     const Wawy = require('../controllers/wawy');
     const photoName = `${Path.resolve(__dirname, photoPath)}/${Uuid()}`;
     const camera = new RaspiCam({
@@ -35,6 +35,7 @@ module.exports = {
 
     camera.on("start", (err, timestamp) => {
       Logger.log('verbose', 'Snap started...');
+      RTS.camera('status:connecting');
       Wawy.set({isSnapping: true}, () => {});
     });
 
@@ -52,6 +53,7 @@ module.exports = {
         ], (err, stdout) => {
           if (err) console.log(err);
         });
+      RTS.camera('status:uploading:photo', this.file);
       callback(this.file);
     });
 

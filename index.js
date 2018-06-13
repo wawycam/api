@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const Logger = require('./utils/logger');
 const config = require('./config');
 const WaWy = require('./controllers/wawy');
+const RTS = require('../RTS-Client/lib')('http://192.168.0.70', '1234');
 
 const cors = corsMiddleware({
   preflightMaxAge: 5,
@@ -25,6 +26,7 @@ server.use(restifyPlugins.bodyParser({ mapParams: true }));
 server.use(restifyPlugins.acceptParser(server.acceptable));
 server.use(restifyPlugins.queryParser({ mapParams: true }));
 server.use(restifyPlugins.fullResponse());
+server.use(RTS.listen);
 
 const io = socketio(server.server);
 
@@ -49,7 +51,8 @@ module.exports = server.listen(config.port, function () {
 
   db.once('open', () => {
     WaWy.init((wawy) => {
-      require('./routes')(server, wawy);
+      RTS.set(wawy.serial);
+      require('./routes')(server, wawy, RTS);
       Logger.info(`Server ${server.name} is listening on port ${config.port}`);
     })
   });

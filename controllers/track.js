@@ -3,7 +3,7 @@ const Moment = require("moment");
 const WaWyModel = require('../models/wawy');
 
 module.exports = {
-  set: (geoData, callback) => {
+  set: (callback) => {
     const date = Moment().format('YYYY-MM-DD');
     const trackName =  `track-${date}`;
     Wawy.get((wawy) => {

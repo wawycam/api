@@ -1,5 +1,5 @@
-module.exports = function(server, wawy) {
-  require('./photo')(server, wawy);
+module.exports = function(server, wawy, RTS) {
+  require('./photo')(server, wawy, RTS);
   require('./service')(server);
   require('./track')(server);
   require('./video')(server, wawy);

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "pm2 start index.js",
-    "dev": "NODE_ENV=development nodemon index.js",
+    "dev": "NODE_ENV=development RTS_URI=http://192.168.0.70:3040 nodemon index.js",
     "test": "NODE_ENV=test node_modules/.bin/_mocha --exit --timeout 7000 tests/unit/*.spec.js || true"
   },
   "author": "",
