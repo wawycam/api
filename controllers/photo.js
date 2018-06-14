@@ -22,42 +22,44 @@ module.exports = {
 
   snap: (Camera, RTS, callback) => {
     const Wawy = require('../controllers/wawy');
-    const photoName = `${Path.resolve(__dirname, photoPath)}/${Uuid()}`;
-    const camera = new RaspiCam({
-      mode: "photo",
-      output: `${photoName}.png`,
-      encoding: "png",
-      timeout: 2000,
-      rotation: Camera.rotation,
-      width: 1440,
-      height: 1080,
-    });
+    Wawy.get((wawy) => {
+      const photoName = `${Path.resolve(__dirname, photoPath)}/${Uuid()}`;
+      const camera = new RaspiCam({
+        mode: "photo",
+        output: `${photoName}.png`,
+        encoding: "png",
+        timeout: 2000,
+        rotation: wawy.rotation,
+        width: 1440,
+        height: 1080,
+      });
 
-    camera.on("start", (err, timestamp) => {
-      Logger.log('verbose', 'Snap started...');
-      RTS.camera('status:connecting');
-      Wawy.set({isSnapping: true}, () => {});
-    });
+      camera.on("start", (err, timestamp) => {
+        Logger.log('verbose', 'Snap started...');
+        RTS.camera('status:connecting');
+        Wawy.set({isSnapping: true}, () => {});
+      });
 
-    camera.on("read", (err, timestamp, filename) => {
-      this.file = filename;
-    });
+      camera.on("read", (err, timestamp, filename) => {
+        this.file = filename;
+      });
 
-    camera.on("exit", (timestamp) => {
-      Wawy.set({isSnapping: false}, () => {});
-      Im.convert([
-        `${photoName}.png`,
-        '-resize',
-        '480',
-        `${photoName}_480.png`,
-        ], (err, stdout) => {
-          if (err) console.log(err);
-        });
-      RTS.camera('status:uploading:photo', this.file);
-      callback(this.file);
-    });
+      camera.on("exit", (timestamp) => {
+        Wawy.set({isSnapping: false}, () => {});
+        Im.convert([
+          `${photoName}.png`,
+          '-resize',
+          '480',
+          `${photoName}_480.png`,
+          ], (err, stdout) => {
+            if (err) console.log(err);
+          });
+        RTS.camera('status:uploading:photo', this.file);
+        callback(this.file);
+      });
 
-    camera.start();  
+      camera.start();  
+    });
   },
 
   list: (callback) => {
