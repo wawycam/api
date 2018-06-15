@@ -32,6 +32,9 @@ module.exports = {
         rotation: wawy.rotation,
         width: 1440,
         height: 1080,
+        log: () => {
+          return;
+        },
       });
 
       camera.on("start", (err, timestamp) => {

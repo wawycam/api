@@ -1,14 +1,14 @@
 const Track = require('../controllers/track');
 
-module.exports = function(server) {
+module.exports = function(server, RTS) {
   server.post('/track/:id', function(req, res, next) {
     Track.setTrack(req.params.id, req.body.geoData, () => {
       res.send(201);
     })
   });
   server.post('/track', function(req, res, next) {
-    Track.set((id) => {
-      res.send(201, { id });
+    Track.set(RTS, (id, name) => {
+      res.send(201, { id, name });
     })
   });
 };

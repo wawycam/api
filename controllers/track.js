@@ -3,7 +3,7 @@ const Moment = require("moment");
 const WaWyModel = require('../models/wawy');
 
 module.exports = {
-  set: (callback) => {
+  set: (RTS, callback) => {
     const date = Moment().format('YYYY-MM-DD');
     const trackName =  `track-${date}`;
     Wawy.get((wawy) => {
@@ -17,7 +17,8 @@ module.exports = {
           WaWyModel.findOne({_id: wawy._id}, { tracks: 1}, (err, camera) => {
             const tracks = camera.tracks;
             const track = tracks.slice(-1).pop();
-            return callback(track._id);
+            RTS.track(track._id, trackName);
+            return callback(track._id, trackName);
           });
         };
       });
