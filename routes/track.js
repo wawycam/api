@@ -11,4 +11,9 @@ module.exports = function(server, RTS) {
       res.send(201, { id, name });
     })
   });
+  server.del('/track/:id', function(req, res, next) {
+    Track.stop(() => {
+      res.send(204);
+    })
+  });
 };

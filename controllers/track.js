@@ -61,4 +61,7 @@ module.exports = {
       });
     });
   },
+  stop: (callback) => {
+    return callback();
+  }
 }
