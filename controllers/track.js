@@ -32,33 +32,36 @@ module.exports = {
         // strict equality doesn't work
         return track._id == trackId; 
       }).pop()
-      let count = track.count + 1
-      const updateFields = {
-        "tracks.$.count": count, 
-        "tracks.$.updatedAt": Moment(),
-      }
-      Wawy.setSubdoc({"tracks._id": track._id}, updateFields, (err, doc) => {
-        if (err) console.log(err)
-      });
+      if (track) {
+        let count = track.count + 1
+        const updateFields = {
+          "tracks.$.count": count, 
+          "tracks.$.updatedAt": Moment(),
+        }
+        Wawy.setSubdoc({"tracks._id": track._id}, updateFields, (err, doc) => {
+          if (err) console.log(err)
+        });
 
-      const geo = {
-        accuracy: geoData.accuracy,
-        altitude: geoData.altitude,
-        heading: geoData.heading,
-        speed: geoData.speed,
-        location: {
-          type: 'Point',
-          coordinates: [geoData.latitude, geoData.longitude],
-        },
+        const geo = {
+          accuracy: geoData.accuracy,
+          altitude: geoData.altitude,
+          heading: geoData.heading,
+          speed: geoData.speed,
+          location: {
+            type: 'Point',
+            coordinates: [geoData.latitude, geoData.longitude],
+          },
+        }
+        geo.media = (geoData.media) ? geoData.media : null;
+        Wawy.pushSubdoc({
+          "tracks._id": track._id
+        }, {
+          "tracks.$.geoData": geo
+        }, (err, doc) => {
+          return callback();
+        });
       }
-      geo.media = (geoData.media) ? geoData.media : null;
-      Wawy.pushSubdoc({
-        "tracks._id": track._id
-      }, {
-        "tracks.$.geoData": geo
-      }, (err, doc) => {
-        return callback();
-      });
+      return callback();
     });
   },
   stop: (callback) => {
