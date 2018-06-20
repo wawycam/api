@@ -60,8 +60,9 @@ module.exports = {
         }, (err, doc) => {
           return callback();
         });
+      } else {
+        return callback();
       }
-      return callback();
     });
   },
   stop: (callback) => {
