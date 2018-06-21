@@ -1,0 +1,13 @@
+HTTP/1.1 100 Continue
+
+HTTP/1.1 201 Created
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Access-Control-Expose-Headers: content-type,Authorization
+Content-Type: application/json; charset=utf-8
+Content-Length: 79
+ETag: W/"4f-Jjo6N0Lqa68R67lRIIlngtj3pe8"
+Date: Thu, 21 Jun 2018 15:26:46 GMT
+Connection: keep-alive
+
+{"camera":"00000000fe864d2f","file":"uploads/58adc79eff0d0e2348dcf9321cdebf70"}

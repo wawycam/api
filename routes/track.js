@@ -11,6 +11,11 @@ module.exports = function(server, RTS) {
       res.send(201, { id, name });
     })
   });
+  server.put('/track/resume/:id', function(req, res, next) {
+    Track.resume(() => {
+      res.send(201);
+    })
+  });
   server.del('/track/:id', function(req, res, next) {
     Track.stop(() => {
       res.send(204);

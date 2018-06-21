@@ -65,6 +65,9 @@ module.exports = {
       }
     });
   },
+  resume: (callback) => {
+    return callback();
+  },
   stop: (callback) => {
     return callback();
   }
