@@ -3,6 +3,7 @@
   "script": "index.js",
   "cwd": "/home/pi/wawycam/api",
   "env": {
-    "RTS_URI": "http://192.168.0.70:3040"
+    "NODE_ENV": "development",
+    "RTS_URI": "https://api.wawy.io"
   }
 }
