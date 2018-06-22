@@ -15,14 +15,14 @@ module.exports = {
       const camera = new RaspiCam({
         mode: "video",
 				output: `${videoName}.h264`,
-				rotation: wawy.rotation,//270,//180,
+				rotation: wawy.rotation,
 				timeout: 12000, //30*60*1000,
 				width: 640,
 				height: 480,
 				profile: 'main',
-        // log: () => {
-        //   return;
-        // },
+        log: () => {
+          return;
+        },
       });
 
       camera.on("start", (err, timestamp) => {

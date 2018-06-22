@@ -13,12 +13,8 @@ module.exports = function(server, wawy, RTS) {
   });
 
   server.post('/video/short', function(req, res, next) {
-    Video.startShortVideo(wawy, RTS, (isStarted) => {
-      if (isStarted) {
-        res.send(201)
-      } else {
-        res.send(404);
-      }
+    Video.startShortVideo(wawy, RTS, (video) => {
+      res.send(200, video)
     });   
   });
 
