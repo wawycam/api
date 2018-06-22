@@ -14,7 +14,7 @@ module.exports = function(server, wawy, RTS) {
 
   server.post('/video/short', function(req, res, next) {
     Video.startShortVideo(wawy, RTS, (video) => {
-      res.send(200, video)
+      res.send(200, { video })
     });   
   });
 
