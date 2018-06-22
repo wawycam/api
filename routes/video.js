@@ -1,9 +1,19 @@
 const Config = require('../config');
 const Video = require('../controllers/video');
 
-module.exports = function(server, wawy) {
+module.exports = function(server, wawy, RTS) {
   server.post('/video', function(req, res, next) {
     Video.start(wawy, (isStarted) => {
+      if (isStarted) {
+        res.send(201)
+      } else {
+        res.send(404);
+      }
+    });   
+  });
+
+  server.post('/video/short', function(req, res, next) {
+    Video.startShortVideo(wawy, RTS, (isStarted) => {
       if (isStarted) {
         res.send(201)
       } else {

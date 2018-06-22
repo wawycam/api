@@ -1,10 +1,49 @@
 const Logger = require('../utils/logger');
+const RaspiCam = require('raspicam');
 const Exec = require('child_process').exec;
 const Path = require('path');
-const photoPath = './snap'; //--should be in config file
+const photoPath = '../snap'; //--should be in config file
 const Uuid = require('uuid/v4');
 
 module.exports = {
+
+
+  startShortVideo: (Camera, RTS, callback) => {
+    const Wawy = require('../controllers/wawy');
+    Wawy.get((wawy) => {
+      const videoName = `${Path.resolve(__dirname, photoPath)}/${Uuid()}`;
+      const camera = new RaspiCam({
+        mode: "video",
+				output: `${videoName}.h264`,
+				rotation: wawy.rotation,//270,//180,
+				timeout: 12000, //30*60*1000,
+				width: 640,
+				height: 480,
+				profile: 'main',
+        // log: () => {
+        //   return;
+        // },
+      });
+
+      camera.on("start", (err, timestamp) => {
+        Logger.log('verbose', 'Video started...');
+        RTS.camera('status:recording');
+        Wawy.set({isSnapping: true}, () => {});
+      });
+
+      camera.on("read", (err, timestamp, filename) => {
+        this.file = filename;
+      });
+
+      camera.on("exit", (timestamp) => {
+        Wawy.set({isSnapping: false}, () => {});
+        RTS.camera('status:uploading:photo', this.file);
+        callback(this.file);
+      });
+
+      camera.start();  
+    });
+  },
 
   start: (Camera, callback) => {
     const Wawy = require('./wawy');
