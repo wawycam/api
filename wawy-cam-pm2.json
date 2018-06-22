@@ -4,6 +4,7 @@
   "cwd": "/home/pi/wawycam/api",
   "env": {
     "NODE_ENV": "development",
-    "RTS_URI": "https://api.wawy.io"
+    "RTS_URI": "https://api.wawy.io",
+    "WAWYCAM_URI": "http://localhost:3001"
   }
 }
