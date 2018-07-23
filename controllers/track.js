@@ -27,10 +27,7 @@ module.exports = {
   setTrack: (trackId, geoData, callback) => {
     Wawy.get((wawy) => {
       const track = wawy.tracks.filter((track) => {
-        // should be strict equality, 
-        // but even if set trackId as ObjectId Type, 
-        // strict equality doesn't work
-        return track._id == trackId; 
+        return String(track._id) == trackId; 
       }).pop()
       if (track) {
         let count = track.count + 1

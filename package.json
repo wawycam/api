@@ -19,6 +19,7 @@
     "mongoose": "^4.13.5",
     "mongoose-timestamp": "^0.6.0",
     "node-dir": "^0.1.17",
+    "node-gpsd": "^0.3.0",
     "node-proc": "0.0.1",
     "path-parse": "^1.0.5",
     "pm2": "^2.7.2",

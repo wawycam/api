@@ -1,0 +1,15 @@
+HTTP/1.1 100 Continue
+
+HTTP/1.1 201 Created
+Date: Sun, 24 Jun 2018 07:51:33 GMT
+Server: Apache/2.4.7 (Ubuntu)
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Access-Control-Expose-Headers: content-type,Authorization
+Content-Type: application/json; charset=utf-8
+Content-Length: 79
+ETag: W/"4f-vxA9ROML6gLR5KmOSKxgF5x4e7A"
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 86400
+
+{"camera":"00000000fe864d2f","file":"uploads/e232e85b48e10c7885057d9f65cf09d7"}
