@@ -1,6 +1,5 @@
 const Logger = require('../utils/logger');
-const Setup = require('setup')();
-const Exec = require('child_process').exec;
+const Hostile = require('hostile');
 const AutoMode = require('../controllers/automode');
 const Service = require('../controllers/service');
 const QRCode = require('qrcode');
@@ -36,15 +35,30 @@ const Self = module.exports = {
     })
   },
 
-  setname: (name, callback) => {
-    Setup.hostname.save(name);
-    const cmd = `sudo -- sh -c -e "echo '127.0.0.1   ${name}' >> /etc/hosts";`;
-    Exec(cmd);
-    Self.set({name: name}, (err, doc) => {
-      if (!err) {
-        callback(true);
-      }
-    })
+  setname: (name, lastname, callback) => {
+    Service.serial((serial) => {
+      Hostile.remove('127.0.0.1', lastname, (err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          Hostile.set('127.0.0.1', name, (err) => {
+            if (err) {
+              console.error(err);
+              callback(false);
+            } else {
+              WaWyModel.findOneAndUpdate({serial: serial.serial}, {$set: { name }}, (err) => {
+                if (err) {
+                  console.log(err);
+                  callback(false);
+                } else {
+                  callback(true);
+                }
+              });
+            }
+          });
+        }
+      });
+    });
   },
 
   generateQrCode: (callback) => {

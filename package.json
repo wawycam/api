@@ -15,6 +15,7 @@
     "cron": "^1.3.0",
     "diskspace": "^2.0.0",
     "filterous": "^2.0.2-beta",
+    "hostile": "^1.3.2",
     "moment": "^2.19.2",
     "mongoose": "^4.13.5",
     "mongoose-timestamp": "^0.6.0",

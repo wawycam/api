@@ -12,7 +12,7 @@ module.exports = function(server) {
 
   server.post('/wawy/name', function(req, res, next) {
     if (req.body && req.body.name) {
-      Wawy.setname(req.body.name, (result) => {
+      Wawy.setname(req.body.name, req.body.lastname, (result) => {
         if (result) {
           res.send(201);
         } else {

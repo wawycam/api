@@ -31,7 +31,7 @@ module.exports = {
     const interval = setInterval(() => {
       if (counter < maxTry) {
         Wifi.getStatus().then((status) => {
-          if (status) {
+          if (status && status.ssid) {
             callback(status);
             clearInterval(interval);  
           } else {
