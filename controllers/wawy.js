@@ -1,4 +1,5 @@
 const Logger = require('../utils/logger');
+const Setup = require('setup')();
 const Hostile = require('hostile');
 const AutoMode = require('../controllers/automode');
 const Service = require('../controllers/service');
@@ -36,6 +37,7 @@ const Self = module.exports = {
   },
 
   setname: (name, lastname, callback) => {
+    Setup.hostname.save(name);
     Service.serial((serial) => {
       Hostile.remove('127.0.0.1', lastname, (err) => {
         if (err) {
