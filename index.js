@@ -10,7 +10,7 @@ const RTS = require('../RTS-Client/lib')();
 const cors = corsMiddleware({
   preflightMaxAge: 5,
   origins: ['*'],
-  allowHeaders: ['GET', 'POST'],
+  allowHeaders: ['GET', 'POST', 'Authorization'],
 })
 
 const server = restify.createServer({

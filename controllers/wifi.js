@@ -15,7 +15,8 @@ module.exports = {
   },
 
   set: (ssid, psk, callback) => {
-    Wifi.connect({ssid: ssid, psk: psk}).then(() => {
+    Wifi.connect({ssid: ssid, psk: psk}).then((res) => {
+      console.log(res);
       callback(true)
     })
     .catch((error) => {
@@ -24,7 +25,7 @@ module.exports = {
     });
   },
 
-  status: (callback) => {
+  status: (RTS, callback) => {
     let counter = 0;
     const timeout = 30000;
     const maxTry = 10;
@@ -32,6 +33,7 @@ module.exports = {
       if (counter < maxTry) {
         Wifi.getStatus().then((status) => {
           if (status && status.ssid) {
+            RTS.camera('update:camera', null, status);
             callback(status);
             clearInterval(interval);  
           } else {
