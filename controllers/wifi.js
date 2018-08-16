@@ -1,5 +1,6 @@
 const wifi = require('rpi-wifi-connection');
 const Wifi = new wifi();
+const Wawy = require('../controllers/wawy');
 
 module.exports = {
   list: (callback) => {
@@ -33,9 +34,16 @@ module.exports = {
       if (counter < maxTry) {
         Wifi.getStatus().then((status) => {
           if (status && status.ssid) {
-            RTS.camera('update:camera', null, status);
             callback(status);
             clearInterval(interval);  
+            // Wawy.get((wawy) => {
+            //   const camera = {
+            //     name: wawy.name,
+            //     serial: wawy.serial,
+            //     ip: status.ip_address,
+            //   };
+            //   RTS.camera('updateOrRegister:camera', null, camera);
+            // });
           } else {
             counter++;
           }
