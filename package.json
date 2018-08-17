@@ -36,6 +36,7 @@
     "rimraf": "^2.6.2",
     "rpi-wifi-connection": "^1.0.14",
     "setup": "0.0.3",
+    "simple-git": "^1.96.0",
     "simple-imagemagick": "^0.2.2",
     "socket.io": "^2.1.0",
     "tar": "^4.0.2",

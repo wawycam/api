@@ -4,10 +4,11 @@ const Service = require('../controllers/service');
 module.exports = function(server) {
   server.get('/service/status', function(req, res, next) {
     res.json(200, 'alive');
-    return next();
   });
   server.get('/service/version', function(req, res, next) {
-    res.json(200, {version: Config.version});
+    Service.version(req.query.repo, (version) => {
+      res.json(200, version);
+    })
   });
   server.get('/service/info', function(req, res, next) {
     Service.info((info) => {
@@ -17,6 +18,11 @@ module.exports = function(server) {
   server.get('/service/serial', function(req, res, next) {
     Service.serial((serial) => {
       res.json(200, serial);
+    })
+  });
+  server.get('/service/update', function(req, res, next) {
+    Service.checkForUpdate(req.query.repo, (status) => {
+      res.send(200, status);
     })
   });
   server.post('/service/halt', function(req, res, next) {
