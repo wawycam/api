@@ -35,10 +35,22 @@ module.exports = {
     }
   },
 
+  changeLog: async (repo, callback) => {
+    const workingDirectory = (repo === 'ui') ? `${Path.resolve(__dirname, '../../ui')}` : './';
+    try {
+      const changeLog = await git(workingDirectory).log();
+      callback(changeLog.all);
+    }
+    catch (e) {
+      callback(e);
+    }
+  },
+
   checkForUpdate: async (repo, callback) => {
     const workingDirectory = (repo === 'ui') ? `${Path.resolve(__dirname, '../../ui')}` : './';
     const branch = (repo === 'ui') ? 'origin/master' : 'origin/develop';
     try {
+      const fetch = await git(workingDirectory).fetch();
       const apiRemoteLastCommitLog = await git(workingDirectory).raw(['log', '-1', branch]);
       const apiRemoteLastCommit = apiRemoteLastCommitLog.split('\n')[0].replace('commit ', '');
       
@@ -64,7 +76,14 @@ module.exports = {
           callback(e);
         }
         if(update && update.summary.changes && repo === 'api') {
-          require('child_process').exec('pm2 restart WaWyCam');
+          const child = require('child_process');
+          child.exec('npm install && pm2 restart WaWyCam');
+          child.on('exit', (code, signal) => {
+            console.log('child process exited with ' + `code ${code} and signal ${signal}`);
+            callback('ok');
+          });
+        } else {
+          callback('ok');
         }
       });
   },

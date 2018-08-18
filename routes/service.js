@@ -25,6 +25,16 @@ module.exports = function(server) {
       res.send(200, status);
     })
   });
+  server.post('/service/update', function(req, res, next) {
+    Service.applyUpdate(req.query.repo, () => {
+      res.send(201);
+    })
+  });
+  server.get('/service/changelog', function(req, res, next) {
+    Service.changeLog(req.query.repo, (status) => {
+      res.send(200, status);
+    })
+  });
   server.post('/service/halt', function(req, res, next) {
     Service.halt(() => {
       res.send(201);
