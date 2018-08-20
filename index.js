@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const Logger = require('./utils/logger');
 const config = require('./config');
 const WaWy = require('./controllers/wawy');
+const Wifi = require('./controllers/wifi');
 const RTS = require('../RTS-Client/lib')();
 
 const cors = corsMiddleware({
@@ -42,6 +43,10 @@ module.exports = server.listen(config.port, function () {
     WaWy.init((wawy) => {
       RTS.connect(wawy.serial);
       RTS.set(wawy.serial);
+      Wifi.status((status) => {
+        Logger.info(`Wawy Camera connected on Wifi "${status.ssid}" with Local IP set to "${status.ip_address}"`);
+        RTS.setCameraIp(wawy.serial, status.ip_address);
+      });
       require('./routes')(server, wawy, RTS);
       Logger.info(`Server ${server.name} is listening on port ${config.port}`);
     })

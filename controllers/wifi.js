@@ -24,7 +24,7 @@ module.exports = {
     });
   },
 
-  status: (RTS, callback) => {
+  status: (callback) => {
     let counter = 0;
     const timeout = 30000;
     const maxTry = 10;
