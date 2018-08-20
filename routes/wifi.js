@@ -1,6 +1,6 @@
 const Wifi = require('../controllers/wifi');
 
-module.exports = function(server, RTS) {
+module.exports = function(server) {
 
   server.get('/wifi', function(req, res, next) {
     Wifi.list((wifiList) => {
@@ -15,7 +15,7 @@ module.exports = function(server, RTS) {
   });
 
   server.get('/wifi/status', function(req, res, next) {
-    Wifi.status(RTS, (status) => {
+    Wifi.status((status) => {
       res.json(200, status);
     });
   });

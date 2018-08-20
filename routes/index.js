@@ -5,5 +5,5 @@ module.exports = function(server, wawy, RTS) {
   require('./track')(server, RTS);
   require('./video')(server, wawy, RTS);
   require('./wawy')(server);
-  require('./wifi')(server, RTS);
+  require('./wifi')(server);
 };
