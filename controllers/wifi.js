@@ -17,11 +17,9 @@ module.exports = {
 
   set: (ssid, psk, callback) => {
     Wifi.connect({ssid: ssid, psk: psk}).then((res) => {
-      console.log(res);
       callback(true)
     })
     .catch((error) => {
-      console.log(error);
       callback(false)
     });
   },
@@ -36,14 +34,6 @@ module.exports = {
           if (status && status.ssid) {
             callback(status);
             clearInterval(interval);  
-            // Wawy.get((wawy) => {
-            //   const camera = {
-            //     name: wawy.name,
-            //     serial: wawy.serial,
-            //     ip: status.ip_address,
-            //   };
-            //   RTS.camera('updateOrRegister:camera', null, camera);
-            // });
           } else {
             counter++;
           }

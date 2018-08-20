@@ -70,8 +70,9 @@ module.exports = {
 
   applyUpdate: (repo, callback) => {
     const workingDirectory = (repo === 'ui') ? `${Path.resolve(__dirname, '../../ui')}` : './';
+    const branch  = (repo === 'ui') ? 'master' : 'develop'
     require('simple-git')(workingDirectory)
-      .pull((err, update) => {
+      .pull('origin', branch, (err, update) => {
         if (err) {
           callback(e);
         }
