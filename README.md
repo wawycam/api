@@ -1,4 +1,4 @@
-# WaWy Camera API
+# WaWy   Camera API
 
 WaWy Camera API is a set of APIs written in Node JS that allow any thirds applications like Smartphone App or Web App to take photo, create a timelapse or streaming a video from a Raspberry Pi.
 
