@@ -1,3 +1,4 @@
+const Logger = require('../utils/logger');
 const Async = require('async');
 const Exec = require('child_process').exec;
 const Proc = require('node-proc');
@@ -78,8 +79,14 @@ module.exports = {
         }
         if(update && update.summary.changes && repo === 'api') {
           const Exec = require('child_process').exec;
-          Exec('npm install && pm2 restart WaWyCam');
-          Exec.on('exit', (code, signal) => {
+          const Restart = Exec('npm install && pm2 restart WaWyCam');
+          Restart.stderr.on('data', (data) => {
+            Logger.log('verbose', data.trim());
+          });
+          Restart.stdout.on('data', (data) => {
+            Logger.log('verbose', data.trim());
+          });
+          Restart.on('exit', (code, signal) => {
             console.log('child process exited with ' + `code ${code} and signal ${signal}`);
             callback('ok');
           });
