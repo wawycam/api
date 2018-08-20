@@ -77,9 +77,9 @@ module.exports = {
           callback(e);
         }
         if(update && update.summary.changes && repo === 'api') {
-          const child = require('child_process');
-          child.exec('npm install && pm2 restart WaWyCam');
-          child.on('exit', (code, signal) => {
+          const Exec = require('child_process').exec;
+          Exec('npm install && pm2 restart WaWyCam');
+          Exec.on('exit', (code, signal) => {
             console.log('child process exited with ' + `code ${code} and signal ${signal}`);
             callback('ok');
           });
