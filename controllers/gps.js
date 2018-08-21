@@ -1,7 +1,7 @@
 const Logger = require('../utils/logger');
 const Track = require('../controllers/track');
 const gpsd = require('node-gpsd');
-
+let geoData = {};
 var gpsListenner = new gpsd.Listener({
   port: 2947,
   hostname: 'localhost',
@@ -14,8 +14,12 @@ var gpsListenner = new gpsd.Listener({
 });
 
 module.exports = {
+
+  currentPosition: (callback) => {
+    return callback(geoData);
+  },
+
   start: (RTS, callback) => {
-    let geoData = {};
     let trackId;
     if(!gpsListenner.isConnected()) {
       gpsListenner.connect(() => {
@@ -32,6 +36,7 @@ module.exports = {
         trackId = id;
         callback(1);
       });
+      callback(1);
     });
 
     gpsListenner.on('error.connection', () => {
@@ -47,7 +52,7 @@ module.exports = {
         data  = JSON.parse(data);
         if(data.class === 'TPV') {
           if (data.lat) {
-            const geoData = {
+            geoData = {
               accuracy: null,
               altitude: data.alt,
               heading: data.track,

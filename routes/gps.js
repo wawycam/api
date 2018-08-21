@@ -3,6 +3,12 @@ const Gps = require('../controllers/gps');
 
 module.exports = function(server, RTS) {
 
+  server.get('/gps', function(req, res, next) {
+    Gps.currentPosition((geodata) => {
+      res.send(200, { geodata });
+    });
+  });
+
   server.post('/gps', function(req, res, next) {
     Gps.start(RTS, (status) => {
       if (status) {
