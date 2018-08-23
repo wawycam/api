@@ -1,17 +1,8 @@
 const Logger = require('../utils/logger');
 const Track = require('../controllers/track');
 const gpsd = require('node-gpsd');
-let geoData = {};
-var gpsListenner = new gpsd.Listener({
-  port: 2947,
-  hostname: 'localhost',
-  logger:  {
-    info: function() {},
-    warn: console.warn,
-    error: console.error
-  },
-  parse: false
-});
+let gpsListener;
+let geoData;
 
 module.exports = {
 
@@ -19,35 +10,43 @@ module.exports = {
     return callback(geoData);
   },
 
-  start: (RTS, callback) => {
-    let trackId;
-    if(!gpsListenner.isConnected()) {
-      gpsListenner.connect(() => {
-        Logger.log('verbose', 'GPS listenner on...');
-        gpsListenner.watch();
-      });
-    } else {
-      gpsListenner.watch();
-      Logger.log('verbose', 'GPS listenner on (already started)...');
-    }
+  start: (trackId, RTS, callback) => {
+    
+    gpsListener = new gpsd.Listener({
+      port: 2947,
+      hostname: 'localhost',
+      logger:  {
+        info: function() {},
+        warn: console.warn,
+        error: console.error
+      },
+      parse: false
+    });
 
-    gpsListenner.on('connected', () => {
+    gpsListener.connect(() => {
+      Logger.log('verbose', 'GPS listener on...');
+      gpsListener.watch();
+    });
+
+    gpsListener.on('connected', () => {
+      console.log('connected');
       Track.set(RTS, (id) => {
         trackId = id;
-        callback(1);
       });
       callback(1);
     });
 
-    gpsListenner.on('error.connection', () => {
+    gpsListener.on('error.connection', () => {
+      console.log('error.connection');
       callback(0);
     });
 
-    gpsListenner.on('error.socket', () => {
+    gpsListener.on('error.socket', () => {
+      console.log('error.socket');
       callback(0);
     });
 
-    gpsListenner.on('raw', (data) => {
+    gpsListener.on('raw', (data) => {
       if(data.indexOf('ERROR') === - 1) {
         data  = JSON.parse(data);
         if(data.class === 'TPV') {
@@ -70,10 +69,15 @@ module.exports = {
   },
 
   stop: (callback) => {
-    if(gpsListenner && gpsListenner.isConnected()) {
-      gpsListenner.unwatch();
+    if(gpsListener && gpsListener.isConnected()) {
+      gpsListener.unwatch();
+      gpsListener.disconnect(() => {
+        gpsListener = null;
+        Logger.log('verbose', 'GPS watcher disconnected to GPS.');  
+      });
+      Logger.log('verbose', 'GPS watcher stopped.');
     } else {
-      console.log("no gpsListenner");
+      console.log("no gpsListener");
     }
     callback();
   }

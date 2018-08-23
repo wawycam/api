@@ -10,7 +10,7 @@ module.exports = function(server, RTS) {
   });
 
   server.post('/gps', function(req, res, next) {
-    Gps.start(RTS, (status) => {
+    Gps.start(req.body.trackId, RTS, (status) => {
       if (status) {
         res.send(200);
       } else {
