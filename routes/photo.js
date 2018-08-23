@@ -24,8 +24,8 @@ module.exports = function(server, wawy, RTS) {
   });
 
   server.post('/photo', function(req, res, next) {
-    Photo.snap(wawy, RTS, (photo) => {
-      res.json(200, {photo: photo});
+    Photo.snap(wawy, RTS, (photo, geodata) => {
+      res.json(200, { photo, geodata });
     });
   });
 

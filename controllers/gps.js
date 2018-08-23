@@ -1,5 +1,4 @@
 const Logger = require('../utils/logger');
-const Track = require('../controllers/track');
 const gpsd = require('node-gpsd');
 let gpsListener;
 let geoData;
@@ -14,7 +13,7 @@ module.exports = {
     
     gpsListener = new gpsd.Listener({
       port: 2947,
-      hostname: 'localhost',
+      hostname: '127.0.0.1',
       logger:  {
         info: function() {},
         warn: console.warn,
@@ -29,10 +28,6 @@ module.exports = {
     });
 
     gpsListener.on('connected', () => {
-      console.log('connected');
-      Track.set(RTS, (id) => {
-        trackId = id;
-      });
       callback(1);
     });
 
@@ -59,20 +54,16 @@ module.exports = {
               latitude: data.lat, 
               longitude: data.lon,
             };
-            Track.setTrack(trackId, geoData, () => {
-              console.log('GeoData saved for track ID', trackId);
-            });
           }
         }
       }
     });
   },
-
+  
   stop: (callback) => {
     if(gpsListener && gpsListener.isConnected()) {
       gpsListener.unwatch();
       gpsListener.disconnect(() => {
-        gpsListener = null;
         Logger.log('verbose', 'GPS watcher disconnected to GPS.');  
       });
       Logger.log('verbose', 'GPS watcher stopped.');

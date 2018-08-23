@@ -5,14 +5,15 @@ module.exports = function(server, RTS) {
 
   server.get('/gps', function(req, res, next) {
     Gps.currentPosition((geodata) => {
-      res.send(200, { geodata });
+      res.json(200, { geodata });
+      return next();
     });
   });
 
   server.post('/gps', function(req, res, next) {
     Gps.start(req.body.trackId, RTS, (status) => {
       if (status) {
-        res.send(200);
+        res.send(201);
       } else {
         res.send(404);
       }

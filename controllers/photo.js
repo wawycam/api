@@ -12,7 +12,7 @@ const Path = require('path');
 const PathParse = require('path-parse');
 const Tar = require('tar');
 const Request  = require('request');
-
+const Gps = require('../controllers/gps');
 const Config = require('../config');
 const photoPath = '../snap'; //--should be in config file
 
@@ -22,6 +22,7 @@ module.exports = {
 
   snap: (Camera, RTS, callback) => {
     const Wawy = require('../controllers/wawy');
+    let Geodata;
     Wawy.get((wawy) => {
       const photoName = `${Path.resolve(__dirname, photoPath)}/${Uuid()}`;
       const camera = new RaspiCam({
@@ -45,7 +46,10 @@ module.exports = {
 
       camera.on("read", (err, timestamp, filename) => {
         this.file = filename;
-      });
+        Gps.currentPosition((geodata) => {
+          Geodata = geodata;
+        });
+      }); 
 
       camera.on("exit", (timestamp) => {
         Wawy.set({isSnapping: false}, () => {});
@@ -58,7 +62,7 @@ module.exports = {
             if (err) console.log(err);
           });
         RTS.camera('status:uploading:photo', this.file);
-        callback(this.file);
+        callback(this.file, Geodata);
       });
 
       camera.start();  

@@ -20,7 +20,7 @@ module.exports = {
             RTS.track(track._id, trackName);
             return callback(track._id, trackName);
           });
-        };
+        }
       });
     });
   },
