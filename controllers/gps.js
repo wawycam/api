@@ -10,7 +10,7 @@ const Self = module.exports = {
     return callback(geoData);
   },
 
-  start: (trackId, RTS, callback) => {
+  start: (callback) => {
     const lsusb = Exec('lsusb');
     lsusb.stdout.on('data', (data) => {
       if(data.trim().indexOf('Prolific Technology') > -1) {
