@@ -1,16 +1,40 @@
 const Logger = require('../utils/logger');
+const Exec = require('child_process').exec;
 const gpsd = require('node-gpsd');
 let gpsListener;
 let geoData;
 
-module.exports = {
+const Self = module.exports = {
 
   currentPosition: (callback) => {
     return callback(geoData);
   },
 
   start: (trackId, RTS, callback) => {
-    
+    const lsusb = Exec('lsusb');
+    lsusb.stdout.on('data', (data) => {
+      if(data.trim().indexOf('Prolific Technology') > -1) {
+        Self.listen(callback);
+      } else {
+        callback(0);
+      }
+    });
+  },
+  
+  stop: (callback) => {
+    if(gpsListener && gpsListener.isConnected()) {
+      gpsListener.unwatch();
+      gpsListener.disconnect(() => {
+        Logger.log('verbose', 'GPS watcher disconnected to GPS.');  
+      });
+      Logger.log('verbose', 'GPS watcher stopped.');
+    } else {
+      console.log("no gpsListener");
+    }
+    callback();
+  },
+
+  listen: (callback) => {
     gpsListener = new gpsd.Listener({
       port: 2947,
       hostname: '127.0.0.1',
@@ -59,17 +83,4 @@ module.exports = {
       }
     });
   },
-  
-  stop: (callback) => {
-    if(gpsListener && gpsListener.isConnected()) {
-      gpsListener.unwatch();
-      gpsListener.disconnect(() => {
-        Logger.log('verbose', 'GPS watcher disconnected to GPS.');  
-      });
-      Logger.log('verbose', 'GPS watcher stopped.');
-    } else {
-      console.log("no gpsListener");
-    }
-    callback();
-  }
 }
