@@ -21,4 +21,9 @@ module.exports = function(server, RTS) {
       res.send(204);
     })
   });
+  server.del('/track/:id/delete', function(req, res, next) {
+    Track.delete(req.params.id, () => {
+      res.send(204);
+    })
+  });
 };

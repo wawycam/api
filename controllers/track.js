@@ -67,5 +67,12 @@ module.exports = {
   },
   stop: (callback) => {
     return callback();
+  },
+  delete: (trackId, callback) => {
+    Wawy.get((wawy) => {
+      Wawy.deleteSubdoc({"_id": wawy._id}, {"tracks": {"_id": trackId}}, (err, doc) => {
+        return callback();
+      });
+    });
   }
 }
