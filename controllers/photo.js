@@ -23,6 +23,7 @@ module.exports = {
   snap: (Camera, RTS, callback) => {
     const Wawy = require('../controllers/wawy');
     let Geodata;
+    const startDate = new Date();
     Wawy.get((wawy) => {
       const photoName = `${Path.resolve(__dirname, photoPath)}/${Uuid()}`;
       const camera = new RaspiCam({
@@ -47,11 +48,13 @@ module.exports = {
       camera.on("read", (err, timestamp, filename) => {
         this.file = filename;
         Gps.currentPosition((geodata) => {
+          Logger.log('verbose', 'Geodata fecthed');
           Geodata = geodata;
         });
       }); 
 
-      camera.on("exit", (timestamp) => {
+      camera.on("exit", () => {
+        console.log('Snap done', new Date() - startDate);
         Wawy.set({isSnapping: false}, () => {});
         Im.convert([
           `${photoName}.png`,
@@ -60,9 +63,11 @@ module.exports = {
           `${photoName}_480.png`,
           ], (err, stdout) => {
             if (err) console.log(err);
+            console.log('Im convert done', new Date() - startDate);
+            RTS.camera('status:uploading:photo', this.file);
+            Logger.log('verbose', 'Camera on exit...');
+            callback(this.file, Geodata);
           });
-        RTS.camera('status:uploading:photo', this.file);
-        callback(this.file, Geodata);
       });
 
       camera.start();  

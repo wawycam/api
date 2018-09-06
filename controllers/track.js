@@ -25,17 +25,21 @@ module.exports = {
     });
   },
   setTrack: (trackId, geoData, callback) => {
+    const startDate = new Date();
     Wawy.get((wawy) => {
+      console.log('Get Wawy', new Date() - startDate);
       const track = wawy.tracks.filter((track) => {
         return String(track._id) == trackId; 
       }).pop()
       if (track) {
+        console.log('Filter track', new Date() - startDate);
         let count = track.count + 1
         const updateFields = {
           "tracks.$.count": count, 
           "tracks.$.updatedAt": Moment(),
         }
         Wawy.setSubdoc({"tracks._id": track._id}, updateFields, (err, doc) => {
+          console.log('Update counter', new Date() - startDate);
           if (err) console.log(err)
         });
 
@@ -55,9 +59,11 @@ module.exports = {
         }, {
           "tracks.$.geoData": geo
         }, (err, doc) => {
+          console.log('Set track Mongo Save process time', new Date() - startDate);
           return callback();
         });
       } else {
+        console.log('No track found', new Date() - startDate);
         return callback();
       }
     });
