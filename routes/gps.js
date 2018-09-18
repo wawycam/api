@@ -12,6 +12,7 @@ module.exports = function(server, sockets) {
 
   server.post('/gps', function(req, res, next) {
     Gps.start(sockets, (status) => {
+      console.log('gps status', status);
       if (status) {
         res.send(201);
       } else {

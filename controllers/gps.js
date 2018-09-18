@@ -13,9 +13,12 @@ const Self = module.exports = {
   start: (sockets, callback) => {
     const lsusb = Exec('lsusb');
     lsusb.stdout.on('data', (data) => {
+      console.log(data);
       if(data.trim().indexOf('Prolific Technology') > -1) {
+        console.log('je passe usb gps')
         Self.listen(sockets, callback);
       } else {
+        console.log('no usb gps')
         callback(0);
       }
     });
@@ -35,7 +38,6 @@ const Self = module.exports = {
   },
 
   listen: (sockets, callback) => {
-    console.log('je passe listen');
     gpsListener = new gpsd.Listener({
       port: 2947,
       hostname: '127.0.0.1',
@@ -53,6 +55,7 @@ const Self = module.exports = {
     });
 
     gpsListener.on('connected', () => {
+      Logger.log('verbose', 'GPS listener connected...');
       callback(1);
     });
 
