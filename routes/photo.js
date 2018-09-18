@@ -1,7 +1,7 @@
-const Config = require('../config');
 const Photo = require('../controllers/photo');
-
-module.exports = function(server, wawy, RTS) {
+const CronJob = require('cron').CronJob;
+let PhotoJob = null;
+module.exports = function(server, wawy, sockets, RTS) {
   server.get('/photo', function(req, res, next) {
     Photo.list((photos) => {
       res.json(200, {photos: photos});
@@ -27,6 +27,53 @@ module.exports = function(server, wawy, RTS) {
     Photo.snap(wawy, RTS, (photo, geodata) => {
       res.json(200, { photo, geodata });
     });
+  });
+
+  server.post('/photos/:interval', function(req, res, next) {
+    const interval = parseInt(req.params.interval);
+    let patternToString = '';
+    if (interval > 3600) {
+      res.json(404, {error: 'Interval could not be greater than 3600 seconds (one hour)'});
+    } else {
+      const intervalToMinute = interval / 60;
+      let pattern = [];
+      let time = 0;
+      if (intervalToMinute < 1) { // less than one minute
+        while(time < 60) { //-- 60 = one minute
+          pattern.push(time);
+          time += interval;
+        }
+        patternToString = pattern.join(',') ;
+        patternToString+= ' *';
+      } else if (intervalToMinute === 1) {
+        pattern = '* *';
+      } else { // more than one minute
+        while(time < 60) { //-- 60 = one hour
+          pattern.push(time);
+          time += intervalToMinute;
+        }
+        patternToString = pattern.join(',') ;
+        pattern = `00 ${patternToString}`;
+      }
+      try {
+        photoJob = new CronJob(`${patternToString} * * * *`, () => {
+          Photo.snap(wawy, RTS, (photo, geodata) => {
+            sockets.emit('photo', { photo, geodata });
+          });
+        }, () => {},
+        true,
+        );
+      } catch(e) {
+        console.log(e);
+      }
+      res.json(200, { pattern });
+    }
+    
+  });
+
+  server.del('/photos', function(req, res, next) {
+    photoJob.stop();
+    res.json(204);
   });
 
   server.post('/photo/filter', function(req, res, next) {

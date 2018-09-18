@@ -1,7 +1,7 @@
 const restify = require('restify');
 const Gps = require('../controllers/gps');
 
-module.exports = function(server, RTS) {
+module.exports = function(server, sockets) {
 
   server.get('/gps', function(req, res, next) {
     Gps.currentPosition((geodata) => {
@@ -11,7 +11,7 @@ module.exports = function(server, RTS) {
   });
 
   server.post('/gps', function(req, res, next) {
-    Gps.start((status) => {
+    Gps.start(sockets, (status) => {
       if (status) {
         res.send(201);
       } else {

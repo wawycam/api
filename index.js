@@ -1,4 +1,5 @@
 const restify = require('restify');
+const socketio = require('socket.io');
 const restifyPlugins = require('restify-plugins');
 const corsMiddleware = require('restify-cors-middleware')
 const mongoose = require('mongoose');
@@ -19,6 +20,8 @@ const server = restify.createServer({
   version: config.version,
   acceptable: ['application/json', 'image/png']
 });
+
+const io = socketio.listen(server.server);
 
 server.pre(cors.preflight);
 server.use(cors.actual);
@@ -47,7 +50,7 @@ module.exports = server.listen(config.port, function () {
         Logger.info(`Wawy Camera connected on Wifi "${status.ssid}" with Local IP set to "${status.ip_address}"`);
         RTS.setCameraIp(wawy.serial, status.ip_address);
       });
-      require('./routes')(server, wawy, RTS);
+      require('./routes')(server, wawy, io.sockets, RTS);
       Logger.info(`Server ${server.name} is listening on port ${config.port}`);
     })
   });

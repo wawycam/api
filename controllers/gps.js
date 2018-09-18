@@ -10,11 +10,11 @@ const Self = module.exports = {
     return callback(geoData);
   },
 
-  start: (callback) => {
+  start: (sockets, callback) => {
     const lsusb = Exec('lsusb');
     lsusb.stdout.on('data', (data) => {
       if(data.trim().indexOf('Prolific Technology') > -1) {
-        Self.listen(callback);
+        Self.listen(sockets, callback);
       } else {
         callback(0);
       }
@@ -34,7 +34,8 @@ const Self = module.exports = {
     callback();
   },
 
-  listen: (callback) => {
+  listen: (sockets, callback) => {
+    console.log('je passe listen');
     gpsListener = new gpsd.Listener({
       port: 2947,
       hostname: '127.0.0.1',
@@ -78,6 +79,7 @@ const Self = module.exports = {
               latitude: data.lat, 
               longitude: data.lon,
             };
+            sockets.emit('location', { geoData });
           }
         }
       }
