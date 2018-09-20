@@ -8,6 +8,7 @@ const WaWySchema = new mongoose.Schema(
 		isBroadcasting: Boolean,
 		isSnapping: Boolean,
 		isRecording: Boolean,
+		isTracking: Boolean,
 		rotation: Number,
 		isGeolocationEnable: Boolean,
 		isAutoVideoEnable: Boolean,

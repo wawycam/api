@@ -17,6 +17,7 @@ module.exports = {
           WaWyModel.findOne({_id: wawy._id}, { tracks: 1}, (err, camera) => {
             const tracks = camera.tracks;
             const track = tracks.slice(-1).pop();
+            Wawy.set({isTracking: true}, () => {});
             RTS.track(track._id, trackName);
             return callback(track._id, trackName);
           });
@@ -69,9 +70,11 @@ module.exports = {
     });
   },
   resume: (callback) => {
+    Wawy.set({isTracking: false}, () => {});
     return callback();
   },
   stop: (callback) => {
+    Wawy.set({isTracking: false}, () => {});
     return callback();
   },
   delete: (trackId, callback) => {

@@ -1,6 +1,7 @@
 ._*
 .DS_Store
 logfile
+ logfile
 npm-debug.log
 package-lock.json
 logs/
