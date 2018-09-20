@@ -23,6 +23,17 @@ const server = restify.createServer({
 
 const io = socketio.listen(server.server);
 
+const cleanExit = () => {
+  WaWy.set({
+    isSnapping: false,
+    isRecording: false,
+    isTracking: false,
+    isBroadcasting: false,
+  }, () => {
+    return process.exit(0);
+  });
+}
+
 server.pre(cors.preflight);
 server.use(cors.actual);
 server.use(restifyPlugins.bodyParser({ mapParams: true }));
@@ -56,4 +67,8 @@ module.exports = server.listen(config.port, function () {
   });
 
 });
+
+process.on('SIGTERM', cleanExit);
+process.on('SIGINT', cleanExit);
+process.stdin.resume();
 
