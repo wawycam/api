@@ -1,6 +1,8 @@
 const Photo = require('../controllers/photo');
+const Request  = require('request');
 const CronJob = require('cron').CronJob;
 let PhotoJob = null;
+
 module.exports = function(server, wawy, sockets, RTS) {
   server.get('/photo', function(req, res, next) {
     Photo.list((photos) => {
@@ -29,8 +31,9 @@ module.exports = function(server, wawy, sockets, RTS) {
     });
   });
 
-  server.post('/photos/:interval', function(req, res, next) {
+  server.post('/photos/:interval/:trackId', function(req, res, next) {
     const interval = parseInt(req.params.interval);
+    const trackId = req.params.trackId;
     let patternToString = '';
     if (interval > 3600) {
       res.json(404, {error: 'Interval could not be greater than 3600 seconds (one hour)'});
@@ -58,6 +61,12 @@ module.exports = function(server, wawy, sockets, RTS) {
       try {
         photoJob = new CronJob(`${patternToString} * * * *`, () => {
           Photo.snap(wawy, RTS, (photo, geodata) => {
+            geodata.media = { file: photo, type: 'image' };
+            Request.post({
+              url: `http://localhost:3001/track/${trackId}`,
+              body: { geoData: geodata },
+              json: true
+            }, () => {});
             sockets.emit('photo', { photo, geodata });
           });
         }, () => {},

@@ -6,6 +6,7 @@ const WaWySchema = new mongoose.Schema(
 		serial: String,
 		name: String,
 		isBroadcasting: Boolean,
+		isTimelapsing: Boolean,
 		isSnapping: Boolean,
 		isRecording: Boolean,
 		isTracking: Boolean,
