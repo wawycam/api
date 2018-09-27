@@ -48,8 +48,19 @@ module.exports = {
   },
 
   checkForUpdate: async (repo, callback) => {
-    const workingDirectory = (repo === 'ui') ? `${Path.resolve(__dirname, '../../ui')}` : './';
-    const branch = (repo === 'ui') ? 'origin/master' : 'origin/develop';
+    let workingDirectory = './';
+    let branch = 'origin/develop';
+    switch (repo) {
+      case "ui":
+        workingDirectory = `${Path.resolve(__dirname, '../../ui')}`;
+        branch = 'origin/master';
+        break;
+      case "RTS":
+        workingDirectory = `${Path.resolve(__dirname, '../../RTS-Client')}`;
+        branch = 'origin/master';  
+    }
+    // const workingDirectory = (repo === 'ui') ? `${Path.resolve(__dirname, '../../ui')}` : './';
+    // const branch = (repo === 'ui') ? 'origin/master' : 'origin/develop';
     try {
       const fetch = await git(workingDirectory).fetch();
       const apiRemoteLastCommitLog = await git(workingDirectory).raw(['log', '-1', branch]);
@@ -70,26 +81,50 @@ module.exports = {
   },
 
   applyUpdate: (repo, callback) => {
-    const workingDirectory = (repo === 'ui') ? `${Path.resolve(__dirname, '../../ui')}` : './';
-    const branch  = (repo === 'ui') ? 'master' : 'develop'
+    let workingDirectory = './';
+    let branch = 'develop';
+    switch (repo) {
+      case "ui":
+        workingDirectory = `${Path.resolve(__dirname, '../../ui')}`;
+        branch = 'master';
+        break;
+      case "RTS":
+        workingDirectory = `${Path.resolve(__dirname, '../../RTS-Client')}`;
+        branch = 'master';  
+    }
     require('simple-git')(workingDirectory)
       .pull('origin', branch, (err, update) => {
         if (err) {
           callback(e);
         }
-        if(update && update.summary.changes && repo === 'api') {
-          const Exec = require('child_process').exec;
-          const Restart = Exec('npm install && pm2 restart WaWyCam');
-          Restart.stderr.on('data', (data) => {
-            Logger.log('verbose', data.trim());
-          });
-          Restart.stdout.on('data', (data) => {
-            Logger.log('verbose', data.trim());
-          });
-          Restart.on('exit', (code, signal) => {
-            console.log('child process exited with ' + `code ${code} and signal ${signal}`);
-            callback('ok');
-          });
+        if(update && update.summary.changes) {
+          if (repo === 'api') {
+            const Exec = require('child_process').exec;
+            const Restart = Exec('npm install && pm2 restart WaWyCam');
+            Restart.stderr.on('data', (data) => {
+              Logger.log('verbose', data.trim());
+            });
+            Restart.stdout.on('data', (data) => {
+              Logger.log('verbose', data.trim());
+            });
+            Restart.on('exit', (code, signal) => {
+              console.log('child process exited with ' + `code ${code} and signal ${signal}`);
+              callback('ok');
+            });
+          } else if (repo === 'RTS') {
+            const Exec = require('child_process').exec;
+            const Restart = Exec('pm2 restart WaWyCam');
+            Restart.stderr.on('data', (data) => {
+              Logger.log('verbose', data.trim());
+            });
+            Restart.stdout.on('data', (data) => {
+              Logger.log('verbose', data.trim());
+            });
+            Restart.on('exit', (code, signal) => {
+              console.log('child process exited with ' + `code ${code} and signal ${signal}`);
+              callback('ok');
+            });
+          }
         } else {
           callback('ok');
         }

@@ -7,6 +7,7 @@ const Logger = require('./utils/logger');
 const config = require('./config');
 const WaWy = require('./controllers/wawy');
 const Wifi = require('./controllers/wifi');
+const Service = require('./controllers/service');
 const RTS = require('../RTS-Client/lib')();
 
 const cors = corsMiddleware({
@@ -60,6 +61,16 @@ module.exports = server.listen(config.port, function () {
       Wifi.status((status) => {
         Logger.info(`Wawy Camera connected on Wifi "${status.ssid}" with Local IP set to "${status.ip_address}"`);
         RTS.setCameraIp(wawy.serial, status.ip_address);
+        // Auto check for RTS-Client UPDATE
+        Service.checkForUpdate('RTS', (status) => {
+          Logger.verbose(`RTS status update: ${status}`);
+          if (status === 'updateAvailable') {
+            Logger.info(`RTS status update: ${status}`);
+            Service.applyUpdate('RTS', (status) => {
+              Logger.info(`RTS is upadated: ${status}`);
+            });
+          }
+        });
       });
       require('./routes')(server, wawy, io.sockets, RTS);
       Logger.info(`Server ${server.name} is listening on port ${config.port}`);
