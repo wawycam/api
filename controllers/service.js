@@ -113,7 +113,7 @@ module.exports = {
             });
           } else if (repo === 'RTS') {
             const Exec = require('child_process').exec;
-            const Restart = Exec('pm2 restart WaWyCam');
+            const Restart = Exec('npm install && pm2 restart WaWyCam');
             Restart.stderr.on('data', (data) => {
               Logger.log('verbose', data.trim());
             });
