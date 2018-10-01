@@ -13,7 +13,9 @@ const PathParse = require('path-parse');
 const Tar = require('tar');
 const Request  = require('request');
 const Gps = require('../controllers/gps');
+const WaWy = require('../controllers/wawy');
 const Config = require('../config');
+
 const photoPath = '../snap'; //--should be in config file
 
 module.exports = {
@@ -21,10 +23,9 @@ module.exports = {
   timelapse: '',
 
   snap: (Camera, RTS, callback) => {
-    const Wawy = require('../controllers/wawy');
     let Geodata;
     const startDate = new Date();
-    Wawy.get((wawy) => {
+    WaWy.get((wawy) => {
       const photoName = `${Path.resolve(__dirname, photoPath)}/${Uuid()}`;
       const camera = new RaspiCam({
         mode: "photo",
@@ -42,7 +43,7 @@ module.exports = {
       camera.on("start", (err, timestamp) => {
         Logger.log('verbose', 'Snap started...');
         RTS.camera('status:connecting');
-        Wawy.set({isSnapping: true}, () => {});
+        WaWy.set({isSnapping: true}, () => {});
       });
 
       camera.on("read", (err, timestamp, filename) => {
@@ -55,12 +56,12 @@ module.exports = {
 
       camera.on("exit", () => {
         console.log('Snap done', new Date() - startDate);
-        Wawy.set({isSnapping: false}, () => {});
+        WaWy.set({isSnapping: false}, () => {});
         Im.convert([
           `${photoName}.png`,
           '-resize',
           '480',
-          `${photoName}_480.png`,
+          `${photoName}_x480.png`,
           ], (err, stdout) => {
             if (err) console.log(err);
             console.log('Im convert done', new Date() - startDate);
@@ -111,14 +112,14 @@ module.exports = {
     });      
   },
 
-  startTimelapse: (interval, callback) => {
-    Wawy.get((wawy) => {
+  startTimelapse: (sockets, interval, callback) => {
+    WaWy.get((wawy) => {
       const Self = this;
-      const date = Moment().format('YYYY-MM-DD-HH:mm');
+      const date = Moment().unix(); // .format('YYYY-MM-DD-HH:mm')
       this.timelapseName =  `timelapse-${date}`;
       const lastFileName = '';
-      const output = `${photoPath}/${this.timelapseName}/%04d.png`;
-
+      const output = `${Path.resolve(__dirname, photoPath)}/${this.timelapseName}/%04d.png`;
+      
       this.timelapse = new RaspiCam({
         mode: "timelapse",
         output: output,
@@ -132,22 +133,23 @@ module.exports = {
   
       this.timelapse.on("start", (err, timestamp) => {
         console.log("Timelapse started...");
-        Wawy.get((wawy) => {
+        WaWy.get((wawy) => {
           const timelapses = {
             name: Self.timelapseName,
             count: 0,
             photos: []
           }
-          Wawy.pushSubdoc({"_id": wawy._id}, {timelapses: timelapses}, (err, doc) => {});
-          Wawy.set({isSnapping: true}, (err, doc) => {});
+          WaWy.pushSubdoc({"_id": wawy._id}, {timelapses: timelapses}, (err, doc) => {});
+          WaWy.set({isTimelapsing: true}, (err, doc) => {});
         });
       });
   
       this.timelapse.on("read", (err, timestamp, filename) => {
-        if (filename.indexOf('~') === -1 && filename.indexOf('x_') === -1 && Self.lastFileName != filename) {
+        if (filename.indexOf('~') === -1 && filename.indexOf('_x') === -1 && Self.lastFileName != filename) {
           console.log('Read Snap...', filename, Self.timelapseName);
           Self.lastFileName = filename;
-          Wawy.get((wawy) => {
+          const file = filename.split('.');
+          WaWy.get((wawy) => {
             const tl = wawy.timelapses.filter(function (timelapse) {
               return timelapse.name === Self.timelapseName
             }).pop();
@@ -158,18 +160,19 @@ module.exports = {
             }
 
             Im.convert([
-              `${photoPath}/${this.timelapseName}/${filename}`,
+              `${Path.resolve(__dirname, photoPath)}/${this.timelapseName}/${filename}`,
               '-resize',
               '480',
-              `${photoPath}/${this.timelapseName}/480x_${filename}`,
+              `${Path.resolve(__dirname, photoPath)}/${this.timelapseName}/${file[0]}_x480.${file[1]}`,
               ], (err, stdout) => {
                 if (err) console.log(err);
+                sockets.emit('timelapse:photo', { photo: Self.lastFileName });
               });
 
-            Wawy.setSubdoc({"timelapses._id": tl._id}, updateFields, (err, doc) => {
+            WaWy.setSubdoc({"timelapses._id": tl._id}, updateFields, (err, doc) => {
               if (err) console.log(err)
             });
-            Wawy.pushSubdoc({"timelapses._id": tl._id}, {"timelapses.$.photos": {name: filename}}, (err, doc) => {});
+            WaWy.pushSubdoc({"timelapses._id": tl._id}, {"timelapses.$.photos": {name: filename}}, (err, doc) => {});
           }); 
         }
       });
@@ -179,15 +182,14 @@ module.exports = {
       });
   
       this.timelapse.on("stop", (err, timestamp) => {
-        Wawy.set({isSnapping: false}, (err, doc) => {
-          console.log('Update isSnaping to false');
+        WaWy.set({isTimelapsing: false}, (err, doc) => {
+          console.log('Update isTimelapsing to false');
         });    
       });
   
-      this.timelapse.start();  
+      this.timelapse.start();
+      callback(this.timelapseName);
     })
-
-    callback();
   },
 
   stopTimelapse: (callback) => {
@@ -201,13 +203,13 @@ module.exports = {
   },
 
   deleteTimelapse: (folder, callback) => {
-    Wawy.get((wawy) => {
+    WaWy.get((wawy) => {
       const tl = wawy.timelapses.filter(function (timelapse) {
         return timelapse.name === folder
       }).pop();
       if (tl) {
-        Rimraf(`${photoPath}/${tl.name}`, () => { 
-          Wawy.deleteSubdoc({"_id": wawy._id}, {"timelapses": {"_id": tl._id}}, (err, doc) => {
+        Rimraf(`${Path.resolve(__dirname, photoPath)}/${tl.name}`, () => { 
+          WaWy.deleteSubdoc({"_id": wawy._id}, {"timelapses": {"_id": tl._id}}, (err, doc) => {
             callback(true);
           });
         });
@@ -218,7 +220,7 @@ module.exports = {
   },
 
   lastTimelapsePhoto: (folder, callback) => {
-    Wawy.get((wawy) => {
+    WaWy.get((wawy) => {
       wawy.timelapses.map((timelapse) => {
         if (timelapse.name === folder) {
           return callback(timelapse.photos[timelapse.photos.length-1].name);
@@ -228,14 +230,14 @@ module.exports = {
   },
 
   stitch: (folder, type, callback) => {
-    Wawy.get((wawy) => {
+    WaWy.get((wawy) => {
       const timelapsFolder = `${photoPath}/${folder}`;
       const photosToUpload = [];
       const tl = wawy.timelapses.filter(function (tl) {
         return tl.name === folder;
       }).pop();
       if(tl) {
-        Wawy.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "processing"}, (err, doc) => {
+        WaWy.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "processing"}, (err, doc) => {
           if (err) throw err;
           Logger.log('verbose', 'Timelapse video processing...');
           if (!Fs.existsSync(Path.dirname(timelapsFolder))){
@@ -252,7 +254,7 @@ module.exports = {
               Logger.log('verbose', data.trim());
             });
             ffmpegCli.on('exit', (code) => {
-              Wawy.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "achieve"}, (err, doc) => {
+              WaWy.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "achieve"}, (err, doc) => {
                 if (err) throw err;
               });
             });
@@ -264,7 +266,7 @@ module.exports = {
   },
 
   makeTimelapse: (folder, type, callback) => {
-    Wawy.get((wawy) => {
+    WaWy.get((wawy) => {
       const timelapsFolder = `${photoPath}/${folder}`;
       const photosToUpload = [];
       const tl = wawy.timelapses.filter(function (tl) {
@@ -272,7 +274,7 @@ module.exports = {
       }).pop();
 
       if(tl) {
-        Wawy.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "processing"}, (err, doc) => {
+        WaWy.setSubdoc({"timelapses._id": tl._id}, {"timelapses.$.status": "processing"}, (err, doc) => {
           if (err) throw err;
           tl.photos.map((photo) => {
             photosToUpload.push(`480x_${photo.name}`); //--'480x_' sould be a parameter

@@ -1,6 +1,10 @@
-const Wawy = require('../controllers/wawy');
 const Moment = require("moment");
+const Path = require('path');
+const Fs = require('fs');
+const Wawy = require('../controllers/wawy');
 const WaWyModel = require('../models/wawy');
+
+const photoPath = '../snap'; //--should be in config file
 
 module.exports = {
   set: (RTS, callback) => {
@@ -79,9 +83,28 @@ module.exports = {
   },
   delete: (trackId, callback) => {
     Wawy.get((wawy) => {
+      const track = wawy.tracks.filter((track) => {
+        return String(track._id) == trackId; 
+      }).pop()
       Wawy.deleteSubdoc({"_id": wawy._id}, {"tracks": {"_id": trackId}}, (err, doc) => {
         return callback();
       });
+      if (track) {
+        const mediaTrack = track.geoData.filter((geoData) => {
+          return geoData.media && geoData.media.file;
+        });
+        const path = `${Path.resolve(__dirname, photoPath)}`;
+        mediaTrack.map((media) => {
+          const aMedia = media.media.file.split('.');
+          const thumb = `${aMedia[0]}_x480.${aMedia[1]}`;
+          Fs.unlink(`${path}/${media.media.file}`, (error) => {
+            if (error) { throw error; }
+            Fs.unlink(`${path}/${thumb}`, (error) => {
+              if (error) { console.log(error); }
+            });
+          });
+        });
+      }
     });
   }
 }

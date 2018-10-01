@@ -104,8 +104,8 @@ module.exports = function(server, wawy, sockets, RTS) {
   server.post('/photo/timelapse', function(req, res, next) {
     const interval = req.body.interval;
     if (interval) {
-      Photo.startTimelapse(interval, () => {
-        res.send(201);
+      Photo.startTimelapse(sockets, interval, (name) => {
+        res.json(200, { name });
       });
     } else {
       res.json(404, {error: 'bad or missing parameter: interval must be an integer' });

@@ -1,6 +1,6 @@
 const Track = require('../controllers/track');
 
-module.exports = function(server, RTS) {
+module.exports = function(server, RTS, sockets) {
   server.post('/track/:id', function(req, res, next) {
     Track.setTrack(req.params.id, req.body.geoData, () => {
       res.send(201);
@@ -25,5 +25,12 @@ module.exports = function(server, RTS) {
     Track.delete(req.params.id, () => {
       res.send(204);
     })
+  });
+  server.get('/track/sync/:trackId/:serial', async function(req, res, next) {
+    const Track = await RTS.syncTrack(req.params.trackId, req.params.serial);
+    res.json(200, Track);
+  });
+  server.post('/track/sync/:trackId/:serial', function(req, res, next) {
+    RTS.uploadTrack(req.params.trackId, req.params.serial, req.body.geoData, sockets);
   });
 };
